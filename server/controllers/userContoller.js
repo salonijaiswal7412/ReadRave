@@ -32,11 +32,20 @@ const loginUser = async (req, res) => {
     try {
         const user = await User.login(email, password);
         const token = createToken(user._id);
-        res.status(200).json({ user, message:'successfully logged in' });
+        res.status(200).json({ user, token,message:'successfully logged in' });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
 
+const getProfile=async(req,res)=>{
+    if(!req.user){
+        return res.status(401).json({error:'Noy authorised'})
+    }
+    res.status(200).json({
+        user:req.user,
+    });
+};
 
-module.exports={signupUser,loginUser};
+
+module.exports={signupUser,loginUser,getProfile};

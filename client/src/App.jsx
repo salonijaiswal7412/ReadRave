@@ -1,11 +1,19 @@
-import React from 'react'
+import {Routes,Route} from'react-router-dom';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Home from './pages/Home';
 
-function App() {
+
+function App(){
   return (
-   <div className="h-screen bg-amber-100">
-    <h1 className="font-bold text-3xl">hola amigo frontend working</h1>
-   </div>
-  )
+    <>
+    <Routes>
+      <Route path='/' element={<Home/>}/>
+      <Route path='/login' element={<Login/>}></Route>
+      <Route path='/signup' element={<Signup/>}></Route>
+    </Routes>
+    </>
+  );
 }
 
-export default App
+export default App;

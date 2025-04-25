@@ -13,7 +13,9 @@ connectDB();
 // Middleware setup
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({credentials:true}));
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials:true}));
 app.use(express.urlencoded({ extended: true }));
  // Must be above the routes to parse JSON body
 

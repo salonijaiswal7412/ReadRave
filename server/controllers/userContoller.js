@@ -34,12 +34,14 @@ const loginUser = async (req, res) => {
         const token = createToken(user._id);
         res.status(200).json({ user, token,message:'successfully logged in' });
     } catch (error) {
+        
         res.status(400).json({ error: error.message });
     }
 };
 
 const getProfile=async(req,res)=>{
     if(!req.user){
+        
         return res.status(401).json({error:'Noy authorised'})
     }
     res.status(200).json({

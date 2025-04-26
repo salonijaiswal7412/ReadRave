@@ -1,0 +1,146 @@
+/* Animation styles for ReadRave Signup/Login */
+
+/* Form container animation */
+.form-container-animation {
+    transition: all 0.5s ease;
+  }
+  
+  /* Error popup animation */
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -20px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+  
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  
+  .error-popup {
+    animation: fadeInDown 0.5s ease forwards;
+  }
+  
+  .error-popup.hiding {
+    animation: fadeOut 0.5s ease forwards;
+  }
+  
+  /* Input focus animation */
+  .input-animation {
+    transition: all 0.3s ease;
+  }
+  
+  .input-animation:focus {
+    border-color: #D91C7D;
+    box-shadow: 0 0 0 2px rgba(217, 28, 125, 0.2);
+  }
+  
+  /* Button hover animation */
+  .button-animation {
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    box-shadow: 0 3px 0px -1px #9e165a;
+  }
+  
+  .button-animation:hover:not(:disabled) {
+    transform: scale(1.03);
+  }
+  
+  .button-animation:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  
+  /* Page transition animations */
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .page-enter {
+    animation: scaleIn 0.5s ease forwards;
+  }
+  
+  /* Banner slide animation */
+  @keyframes slideIn {
+    from {
+      transform: translateX(10%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .banner-animation {
+    animation: slideIn 0.7s ease-out forwards;
+  }
+  
+  /* Logo and title animations */
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .logo-animation {
+    animation: fadeUp 0.6s ease forwards;
+    animation-delay: 0.2s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+  
+  .title-animation {
+    animation: fadeUp 0.6s ease forwards;
+    animation-delay: 0.3s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+  
+  .desc-animation {
+    animation: fadeUp 0.6s ease forwards;
+    animation-delay: 0.4s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+  
+  /* Form inputs staggered animation */
+  .form-group-1 {
+    animation: fadeUp 0.6s ease forwards;
+    animation-delay: 0.5s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+  
+  .form-group-2 {
+    animation: fadeUp 0.6s ease forwards;
+    animation-delay: 0.6s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+  
+  .form-group-3 {
+    animation: fadeUp 0.6s ease forwards;
+    animation-delay: 0.7s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }

@@ -1,6 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useContext } from 'react';
+import AuthContext from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import loginBanner from '../assets/images/signup-banner.png';
 import Logo from '../assets/images/logo.png';
 
@@ -11,10 +14,7 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  // Create refs for animation elements
-  const bannerRef = useRef(null);
-  const formContainerRef = useRef(null);
-
+  const { login } = useContext(AuthContext);
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -28,22 +28,11 @@ export default function Login() {
         password,
       });
 
-      // If login is successful, animate out then redirect
+      // If login is successful, store token and redirect
       const { token } = response.data;
-      localStorage.setItem('token', token); // Store token in local storage
-      
-      // Exit animation
-      if (bannerRef.current && formContainerRef.current) {
-        bannerRef.current.style.transform = "translateX(-100%)";
-        formContainerRef.current.style.transform = "scale(0)";
-        
-        // Wait for animation to complete before navigating
-        setTimeout(() => {
-          navigate('/profile'); // Navigate after animation completes
-        }, 700);
-      } else {
-        navigate('/profile'); // Fallback if refs aren't available
-      }
+       // Store token in local storage
+      login(response.data.token); 
+      navigate('/profile'); // Navigate to dashboard or home page after successful login
     } catch (err) {
       setError('Invalid credentials. Please try again.');
     } finally {
@@ -51,46 +40,12 @@ export default function Login() {
     }
   };
 
-  // Redirect to signup with animation
-  const redirectToSignup = (e) => {
-    e.preventDefault();
-    if (bannerRef.current && formContainerRef.current) {
-      bannerRef.current.style.transform = "translateX(-100%)";
-      formContainerRef.current.style.transform = "scale(0)";
-      
-      setTimeout(() => {
-        navigate('/signup');
-      }, 700);
-    } else {
-      navigate('/signup');
-    }
-  };
-
   // Auto-dismiss error after 5 seconds
-  useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => {
-        setError('');
-      }, 5000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [error]);
-  
-  // Add entrance animation when component mounts
-  useEffect(() => {
-    if (bannerRef.current && formContainerRef.current) {
-      // Start with elements transformed out
-      bannerRef.current.style.transform = "translateX(-100%)";
-      formContainerRef.current.style.transform = "scale(0)";
-      
-      // Then animate them in after a brief delay
-      setTimeout(() => {
-        bannerRef.current.style.transform = "translateX(0)";
-        formContainerRef.current.style.transform = "scale(1)";
-      }, 100);
-    }
-  }, []);
+  if (error) {
+    setTimeout(() => {
+      setError('');
+    }, 5000);
+  }
 
   return (
     <div className="flex items-center justify-center overflow-hidden h-screen w-screen bg-[#D91C7D]">
@@ -116,13 +71,9 @@ export default function Login() {
         </div>
       )}
 
-      <div className="bg-white flex w-5/8 h-4/5 shadow-gray-800 shadow-[0_0_2rem] rounded-3xl overflow-hidden">
-        {/* Left side - Login Form with animation */}
-        <div 
-          ref={formContainerRef}
-          className="w-full md:w-1/2 flex flex-col items-start justify-center px-8 py-4 bg-white"
-          style={{ transition: "transform 0.7s ease-in-out" }}
-        >
+      <div className="flex w-5/8 h-4/5 shadow-[0_0_2rem] shadow-gray-800 rounded-3xl overflow-hidden">
+        {/* Left side - Login Form */}
+        <div className="w-full md:w-1/2 flex flex-col items-start justify-center px-8 py-4 bg-white">
           <div className="logo mb-6">
             <img src={Logo} alt="logo" className="w-1/4" />
           </div>
@@ -180,23 +131,16 @@ export default function Login() {
             <div className="text-center text-sm">
               <p className="text-gray-600">
                 Don't have an account?{" "}
-                <button 
-                  onClick={redirectToSignup}
-                  className="font-medium text-pink-600 hover:text-pink-500"
-                >
+                <Link to="/signup" className="font-medium text-pink-600 hover:text-pink-500">
                   Sign Up
-                </button>
+                </Link>
               </p>
             </div>
           </div>
         </div>
 
-        {/* Right side - Image with animation */}
-        <div 
-          ref={bannerRef}
-          className="hidden md:block md:w-1/2 bg-pink-100"
-          style={{ transition: "transform 0.7s ease-in-out" }}
-        >
+        {/* Right side - Image */}
+        <div className="hidden md:block md:w-1/2 bg-pink-100">
           <img
             src={loginBanner}
             alt="Login illustration"

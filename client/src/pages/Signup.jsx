@@ -116,7 +116,7 @@ export default function Signup() {
         </div>
 
         {/* Right side - Signup Form */}
-        <div className="w-full md:w-1/2 flex-col items-center justify-center px-8 py-0 bg-white">
+        <div className="w-full md:w-1/2 flex-col items-center justify-center px-8 py-4 bg-white">
           <div className="logo block logo-animation">
             <img src={Logo} alt="logo" className='w-1/4' />
           </div>

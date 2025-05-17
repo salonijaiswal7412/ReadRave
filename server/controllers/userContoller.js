@@ -42,7 +42,7 @@ const loginUser = async (req, res) => {
 const getProfile=async(req,res)=>{
     if(!req.user){
         
-        return res.status(401).json({error:'Noy authorised'})
+        return res.status(401).json({error:'Not authorised'})
     }
     res.status(200).json({
         user:req.user,

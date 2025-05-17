@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const userRoutes = require("./routes/userRoutes");
 const cookieParser=require('cookie-parser');
 const connectDB=require('./config/config');
+const googleBooksRoutes = require('./routes/googleBookRoutes');
 
 const app = express();
 connectDB();
@@ -21,6 +22,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api/users", userRoutes);
+
+
+app.use('/api/google-books', googleBooksRoutes);
 
 
 // Test route

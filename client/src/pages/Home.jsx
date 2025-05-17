@@ -1,8 +1,12 @@
 import React, { useEffect } from 'react'
 import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
+import Image from '../components/Image'
 import Carousel from '../components/Carousel'
+
 import { useLocoScroll } from '../hooks/useLocoScroll'
+import Genres from '../components/Genres'
+
 
 function Home() {
   const locoScrollRef = useLocoScroll(true);
@@ -19,6 +23,9 @@ function Home() {
       <Navbar />
       <Hero />
       <Carousel />
+      <Genres/>
+      <Image />
+      
     </div>
   );
 }

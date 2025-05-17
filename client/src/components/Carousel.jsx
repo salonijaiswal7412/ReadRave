@@ -1,27 +1,15 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useLocoScroll } from '../hooks/useLocoScroll';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
 import bg from '../assets/images/banner.png'
+
 
 function Carousel() {
     // Initialize LocomotiveScroll
     useLocoScroll(true);
 
-    useEffect(() => {
-        // Initialize AOS when the component mounts
-        console.log("AOS initialized");
-        AOS.init({
-            duration: 1200, // Duration of animations
-            once: true, // Run animations once
-            easing: 'ease-in-out', // Smooth easing for animations
-        });
-
-        // Refresh AOS when LocomotiveScroll updates
-        return () => {
-            AOS.refresh(); // Refresh AOS for changes in the component
-        };
-    }, []);
+   
 
     return (
         <div>
@@ -39,6 +27,8 @@ function Carousel() {
                     <p className='text-xl text-gray-500 mt-14 text-justify'>Dive into a universe of stories, where summaries and reviews await your discovery. Explore diverse genres, share your insights, and unleash your creativity.</p>
                     <p className='text-xl text-gray-500 mt-6 text-justify'>
                         Join our vibrant community of book enthusiasts and embark on an endless literary adventure.</p>
+                    <Link to='/signup'>
+                    <button className='bg-[#d91c7d] p-2 rounded-full text-white font-semibold px-4 my-8 cursor-pointer transition-transform duration-400 capitalize hover:scale-103 hover:bg-white border-2 hover:border-[#d91c7d] hover:text-[#d91c7d]'>Join Us</button></Link>
 
                 </div>
             </div>

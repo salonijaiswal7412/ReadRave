@@ -6,6 +6,7 @@ const userRoutes = require("./routes/userRoutes");
 const cookieParser=require('cookie-parser');
 const connectDB=require('./config/config');
 const googleBooksRoutes = require('./routes/googleBookRoutes');
+const reviewRoutes=require('./routes/reviewRoutes');
 
 const app = express();
 connectDB();
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api/users", userRoutes);
+app.use('/api/reviews',reviewRoutes);
 
 
 app.use('/api/google-books', googleBooksRoutes);

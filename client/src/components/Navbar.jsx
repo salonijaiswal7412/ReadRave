@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logo from '../assets/images/logo.png';
 import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+
 
 const Navbar = () => {
   const [query, setQuery] = useState('');
@@ -51,6 +53,7 @@ const Navbar = () => {
   const handleBookSelect = (book) => {
     setQuery(book.title);
     setShowDropdown(false);
+    navigate(`/book/${book.id}`);
   };
 
   return (

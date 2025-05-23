@@ -5,12 +5,15 @@ import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 
 
+
 const Navbar = () => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
+
+  const navigate = useNavigate();
 
   // Fetch suggestions when query changes
   useEffect(() => {
@@ -51,7 +54,7 @@ const Navbar = () => {
   }, []);
 
   const handleBookSelect = (book) => {
-    setQuery(book.title);
+    setQuery('');
     setShowDropdown(false);
     navigate(`/book/${book.id}`);
   };

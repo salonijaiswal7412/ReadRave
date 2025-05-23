@@ -1,11 +1,11 @@
 const express = require("express");
-const Review = require("../models/reviewModel"); // Renamed to capital Review
+const Review = require("../models/reviewModel"); 
 const protect = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 router.get("/:id", async (req, res) => {
   try {
-    const reviews = await Review.find({ bookId: req.params.id }).populate("userId", "name"); // Fixed param name from bookId to id
+    const reviews = await Review.find({ bookId: req.params.id }).populate("userId", "name");
     res.json(reviews);
   } catch (err) {
     res.status(500).json({ error: "failed to fetch reviews" });

@@ -1,19 +1,60 @@
-import React from 'react'
-import Navbar from '../components/Navbar'
-import {useState,useEffect} from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import Navbar from '../components/Navbar';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import ReviewForm from '../components/ReviewForm';
+import AuthContext from '../context/AuthContext';
 
 const BookDetail = () => {
-  const {id}=useParams();
-  const [book,setBook]=useState(null);
-  const [reviews,setReviews]=useState([]);
-  const [loading,setLoading]=useState(true);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Use AuthContext instead of localStorage directly
+  const { isAuthenticated, user, loading: authLoading } = useContext(AuthContext);
+  
+  const [book, setBook] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reviewsLoading, setReviewsLoading] = useState(true);
 
-  useEffect(()=>{
-    console.log('component mounted,id : ',id);
-    if(!id){
+  // Debug logs
+  useEffect(() => {
+    console.log('BookDetail - Auth state:', {
+      isAuthenticated,
+      user,
+      authLoading,
+      localStorage: {
+        token: localStorage.getItem('token'),
+        userData: localStorage.getItem('userData')
+      }
+    });
+  }, [isAuthenticated, user, authLoading]);
+
+  // Fetch reviews function
+  const fetchReviews = async () => {
+    try {
+      setReviewsLoading(true);
+      const response = await fetch(`http://localhost:5000/api/reviews/${id}`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Reviews data:', data);
+        setReviews(Array.isArray(data) ? data : []);
+      } else {
+        console.log('No reviews found or API not available');
+        setReviews([]);
+      }
+    } catch (err) {
+      console.error("Error fetching reviews:", err);
+      setReviews([]);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log('component mounted, id:', id);
+    if (!id) {
       setError('no book id available');
       setLoading(false);
       return;
@@ -21,46 +62,41 @@ const BookDetail = () => {
 
     // Fetch book data
     fetch(`https://www.googleapis.com/books/v1/volumes/${id}`)
-    .then(response=>{
-      console.log('Response status:',response.status);
-      if(!response.ok){
-        throw new Error(`Http error|${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data=>{
-      console.log('Book data: ',data);
-      setBook(data);
-      setLoading(false);
-    })
-    .catch(err=>{
-      console.error('fetch error: ',err);
-      setError(`failed to load book :${err.message}`);
-      setLoading(false);
-    });
+      .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+          throw new Error(`Http error|${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Book data:', data);
+        setBook(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('fetch error:', err);
+        setError(`failed to load book: ${err.message}`);
+        setLoading(false);
+      });
 
     // Fetch reviews
-    const fetchReviews = async () => {
-      try {
-        setReviewsLoading(true);
-        const response = await fetch(`http://localhost:5000/api/reviews/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Reviews data:', data);
-          setReviews(Array.isArray(data) ? data : []);
-        } else {
-          console.log('No reviews found or API not available');
-          setReviews([]);
-        }
-      } catch (err) {
-        console.error("Error fetching reviews:", err);
-        setReviews([]);
-      } finally {
-        setReviewsLoading(false);
-      }
-    };
     fetchReviews();
-  },[id]);
+  }, [id]);
+
+  // Handle review submission callback
+  const handleReviewSubmitted = () => {
+    fetchReviews(); // Refresh reviews after submission
+  };
+
+  // Handle login redirect with return URL
+  const handleLoginRedirect = () => {
+    console.log('Storing redirect URL:', `/book/${id}`);
+    // Store current page URL for redirect after login
+    const currentPath = `/book/${id}`;
+    localStorage.setItem('redirectAfterLogin', currentPath);
+    navigate('/login');
+  };
 
   // Error state
   if (error) {
@@ -75,7 +111,7 @@ const BookDetail = () => {
   }
 
   // Loading state
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="p-6">
         <div className="flex items-center gap-3">
@@ -162,8 +198,32 @@ const BookDetail = () => {
               </div>
             )}
 
-            {/* Reviews Section for Mobile */}
+            {/* Review Form for Mobile */}
             <div className="mt-8 border-t pt-6">
+              {isAuthenticated && user ? (
+                <div>
+                  <p className="text-green-600 mb-4">
+                    Welcome back, {user.name || user.email}! You can write a review.
+                  </p>
+                  <ReviewForm 
+                    bookId={id} 
+                    onReviewSubmitted={handleReviewSubmitted}
+                    user={user}
+                  />
+                </div>
+              ) : (
+                <div className="bg-gray-50 border rounded-lg p-6 text-center mb-6">
+                  <p className="text-gray-600 mb-3">Want to write a review?</p>
+                  <button
+                    onClick={handleLoginRedirect}
+                    className="px-6 py-2 bg-[#D91C7D] text-white rounded-md hover:bg-[#b8165a] transition-colors duration-200"
+                  >
+                    Log In to Review
+                  </button>
+                </div>
+              )}
+
+              {/* Reviews Section for Mobile */}
               <h2 className="text-xl font-bold text-gray-900 mb-4">User Reviews</h2>
               
               {reviewsLoading ? (
@@ -252,40 +312,66 @@ const BookDetail = () => {
               </div>
             )}
 
-            {/* Reviews Section for Desktop */}
-            <div className="mt-12 border-t pt-8 w-5/6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">User Reviews</h2>
+            {/* Review Form for Desktop */}
+            <div className="mt-12  border-[#f13a98ae] border-t-1 pt-8 w-5/6">
+              {isAuthenticated && user ? (
+                <div>
+                  <p className="text-[#d91c7ec9] font-semibold tracking-wide mb-4">
+                    Welcome back, {user.name || user.email}! You can write a review.
+                  </p>
+                  <ReviewForm 
+                    bookId={id} 
+                    onReviewSubmitted={handleReviewSubmitted}
+                    user={user}
+                  />
+                </div>
+              ) : (
+                <div className="bg-gray-50 shadow-[0_0_1.5rem] shadow-gray-300 rounded-lg p-6 text-center mb-6 w-1/2  m-auto ">
+                  <p className="text-gray-600 mb-3 text-lg">Want to write a review?</p>
+                  <button
+                    onClick={handleLoginRedirect}
+                    className="px-6 py-2 bg-[#D91C7D] tracking-wider text-white text-md font-bold rounded-full hover:bg-[#b8165a] transition-colors duration-200"
+                  >
+                    LOG IN 
+                  </button>
+                </div>
+              )}
+
+              {/* Reviews Section for Desktop */}
+              <h2 className="text-3xl font-bold text-[#d91c7d] mb-6 tracking-wide">User Reviews</h2>
               
               {reviewsLoading ? (
-                <div className="flex items-center gap-3">
+                <div className="flex-col items-center gap-3">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
                   <span className="text-gray-600">Loading reviews...</span>
                 </div>
               ) : reviews.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 text-lg">📝 No reviews yet.</p>
+                <div className="text-center py-8 shadow-[0_0_1.5rem] shadow-gray-300  rounded-xl ">
+                  <p className="text-[#d91c7d] tracking-wide text-2xl"> No reviews yet.</p>
                   <p className="text-gray-400 text-sm mt-2">Be the first to review this book!</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {reviews.map((review, index) => (
-                    <div key={review._id || review.id || index} className="bg-gray-50 border rounded-lg p-4 shadow-sm">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="font-semibold text-[#D91C7D]">
+                    <div key={review._id || review.id || index} className="bg-gray-50 shadow-[0_0_1rem] shadow-gray-300 rounded-lg p-4">
+                      <div className=" items-center justify-between mb-2">
+                        <p className="font-semibold text-lg text-[#D91C7D] ">
                           {review.userId?.name || review.userName || 'Anonymous'}
                         </p>
-                        <div className="flex items-center gap-1">
-                          {[...Array(5)].map((_, i) => (
+                        <div className="flex items-center gap-0 text-sm">
+                          {/* {[...Array(5)].map((_, i) => (
                             <span key={i} className={i < review.rating ? 'text-yellow-400' : 'text-gray-300'}>
-                              ⭐
+                              
                             </span>
-                          ))}
-                          <span className="ml-2 text-sm text-gray-600">({review.rating}/5)</span>
+                          ))} */}
+                          <span>⭐ : </span>
+                          <span className="ml-2 text-sm text-gra">{review.rating}/5</span>
                         </div>
                       </div>
-                      <p className="text-gray-700 leading-relaxed">{review.review}</p>
+                      <p className="text-gray-700 leading-relaxed mt-4 mb-2">{review.review}</p>
                       {review.createdAt && (
                         <p className="text-xs text-gray-400 mt-2">
+                          added on-  
                           {new Date(review.createdAt).toLocaleDateString()}
                         </p>
                       )}
@@ -298,7 +384,7 @@ const BookDetail = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default BookDetail
+export default BookDetail;

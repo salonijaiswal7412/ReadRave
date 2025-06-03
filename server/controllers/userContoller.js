@@ -40,13 +40,23 @@ const loginUser = async (req, res) => {
 };
 
 const getProfile=async(req,res)=>{
-    if(!req.user){
-        
-        return res.status(401).json({error:'Not authorised'})
-    }
-    res.status(200).json({
-        user:req.user,
-    });
+     try {
+    // req.user is set by your protect middleware
+    const user = {
+      _id: req.user._id,
+      name: req.user.name,
+      email: req.user.email,
+      // Add any other profile fields you want to return
+      // avatar: req.user.avatar,
+      // createdAt: req.user.createdAt,
+      // etc.
+    };
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Server error while fetching profile' });
+  }
 };
 
 

@@ -15,11 +15,10 @@ export default function Login() {
   const navigate = useNavigate();
 
   const { login } = useContext(AuthContext);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // Clear previous error
     setError('');
 
     try {
@@ -28,12 +27,37 @@ export default function Login() {
         password,
       });
 
-      // If login is successful, store token and redirect
       const { token } = response.data;
-       // Store token in local storage
-      login(response.data.token); 
-      navigate('/profile'); // Navigate to dashboard or home page after successful login
+      
+      console.log('Login successful, token received:', token); // Debug log
+      
+      // Login through context (this will also fetch and store user profile data)
+      const userData = await login(token);
+      
+      console.log('User data fetched and stored:', userData); // Debug log
+      console.log('LocalStorage after login:', {
+        token: localStorage.getItem('token'),
+        userData: localStorage.getItem('userData')
+      }); // Debug log
+      
+      // Check if there's a redirect URL stored (from book detail page)
+      const redirectUrl = localStorage.getItem('redirectAfterLogin');
+      
+      console.log('Checking redirect URL:', redirectUrl); // Debug log
+      
+      if (redirectUrl) {
+        // Clear the stored redirect URL
+        localStorage.removeItem('redirectAfterLogin');
+        console.log('Redirecting to:', redirectUrl); // Debug log
+        // Navigate to the stored URL (book detail page)
+        navigate(redirectUrl);
+      } else {
+        console.log('No redirect URL, going to profile'); // Debug log
+        // Default redirect to profile if no specific redirect URL
+        navigate('/profile');
+      }
     } catch (err) {
+      console.error('Login error:', err); // Debug log
       setError('Invalid credentials. Please try again.');
     } finally {
       setIsSubmitting(false);

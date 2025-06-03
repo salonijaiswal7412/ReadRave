@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logo from '../assets/images/logo.png';
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import AuthContext from '../context/AuthContext';
 
 
 
@@ -12,8 +14,14 @@ const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
+  const { isAuthenticated, logout } = useContext(AuthContext);
 
   const navigate = useNavigate();
+  function handleLogout(){
+    logout();
+    
+
+  };
 
   // Fetch suggestions when query changes
   useEffect(() => {
@@ -123,10 +131,22 @@ const Navbar = () => {
       
       {/* Right - Sign-in Button */}
       <div className="flex items-center">
-        <Link to='/signup' className="text-white font-medium tracking-wider bg-[#D91C7D] rounded-full hover:bg-pink-700 focus:outline-none focus:ring-1 focus:ring-[#D91C7D] focus:ring-offset-2 px-4 py-1">
-          Sign-in 
-        </Link>
-      </div>
+  {isAuthenticated ? (
+    <button 
+      onClick={handleLogout} 
+      className="text-white font-medium tracking-wider bg-[#D91C7D] rounded-full hover:bg-pink-700 focus:outline-none focus:ring-1 focus:ring-[#D91C7D] focus:ring-offset-2 px-4 py-1"
+    >
+      Logout
+    </button>
+  ) : (
+    <Link 
+      to='/signup' 
+      className="text-white font-medium tracking-wider bg-[#D91C7D] rounded-full hover:bg-pink-700 focus:outline-none focus:ring-1 focus:ring-[#D91C7D] focus:ring-offset-2 px-4 py-1"
+    >
+      Sign-in 
+    </Link>
+  )}
+</div>
     </nav>
   );
 };

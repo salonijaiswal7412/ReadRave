@@ -3,20 +3,24 @@ import Navbar from '../components/Navbar';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import ReviewForm from '../components/ReviewForm';
 import AuthContext from '../context/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar } from '@fortawesome/free-solid-svg-icons';
+
 
 const BookDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Use AuthContext instead of localStorage directly
   const { isAuthenticated, user, loading: authLoading } = useContext(AuthContext);
-  
+
   const [book, setBook] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [selectedReview, setSelectedReview] = useState(null);
 
   // Debug logs
   useEffect(() => {
@@ -30,6 +34,24 @@ const BookDetail = () => {
       }
     });
   }, [isAuthenticated, user, authLoading]);
+
+  // Handle click outside to close modal
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Close modal when clicking anywhere on the screen
+      if (selectedReview) {
+        setSelectedReview(null);
+      }
+    };
+
+    if (selectedReview) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [selectedReview]);
 
   // Fetch reviews function
   const fetchReviews = async () => {
@@ -98,6 +120,19 @@ const BookDetail = () => {
     navigate('/login');
   };
 
+  // Handle review click
+  const handleReviewClick = (review, event) => {
+    event.stopPropagation(); // Prevent event bubbling
+    setSelectedReview(review);
+  };
+
+  // Function to truncate text
+  const truncateText = (text, maxLength = 100) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + '...';
+  };
+
   // Error state
   if (error) {
     return (
@@ -130,7 +165,7 @@ const BookDetail = () => {
       </div>
     );
   }
-  
+
   const title = book.volumeInfo?.title || 'Unknown Title';
   const authors = book.volumeInfo?.authors?.join(', ') || 'Unknown Author';
   const publishedDate = book.volumeInfo?.publishedDate || 'Unknown';
@@ -144,16 +179,59 @@ const BookDetail = () => {
   };
   const description = cleanDescription(book.volumeInfo?.description);
   const thumbnail = book.volumeInfo?.imageLinks?.thumbnail;
-  
+
   // Calculate average rating from reviews
-  const averageRating = reviews.length > 0 
+  const averageRating = reviews.length > 0
     ? (reviews.reduce((sum, review) => sum + (review.rating || 0), 0) / reviews.length).toFixed(1)
     : null;
-  
+
   return (
     <div className="overflow-x-hidden">
       <Navbar />
-      
+
+      {/* Click Modal for Review Details */}
+      {selectedReview && (
+        <div
+          className={`fixed z-50 bg-white shadow-[0_0_2rem] shadow-gray-500 rounded-xl transform transition-all duration-300 ease-in-out
+            ${selectedReview.review && selectedReview.review.length > 500
+              ? 'top-[10%] left-[10%] right-[10%] bottom-[10%] overflow-y-auto'
+              : selectedReview.review && selectedReview.review.length > 200
+                ? 'top-[20%] left-[15%] right-[15%] max-h-[60%]  '
+                : 'top-[30%] left-[20%] right-[20%] max-h-[50%]'
+            }
+            md:${selectedReview.review && selectedReview.review.length > 500
+              ? 'left-[27%] right-[5%] top-[10%] bottom-[10%]'
+              : selectedReview.review && selectedReview.review.length > 200
+                ? 'left-[30%] right-[10%] top-[20%] max-h-[60%]'
+                : 'left-[35%] right-[15%] top-[30%] max-h-[40%]'
+            }`}
+        >
+          <div className="p-6 h-full flex flex-col">
+            <div className="flex items-start justify-between mb-4 flex-shrink-0">
+              <h3 className="font-bold text-xl text-[#D91C7D] flex-1 pr-4">
+                {selectedReview.userId?.name || selectedReview.userName || 'Anonymous'}
+              </h3>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className={i < selectedReview.rating ? 'text-[#d91c7d]' : 'text-gray-300'}>
+                    <FontAwesomeIcon icon={faStar} />
+                  </span>
+                ))}
+                <span className="ml-2 text-sm text-gray-600">({selectedReview.rating}/5)</span>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <p className="text-gray-700 leading-relaxed mb-4 text-justify">{selectedReview.review}</p>
+            </div>
+            {selectedReview.createdAt && (
+              <p className="text-xs text-gray-400 flex-shrink-0 mt-2">
+                Added on - {new Date(selectedReview.createdAt).toLocaleDateString()}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Mobile Layout */}
       <div className="md:hidden min-h-screen bg-white">
         <div className="p-4 pt-6">
@@ -170,14 +248,14 @@ const BookDetail = () => {
               />
             </div>
           )}
-          
+
           {/* Book Info for Mobile */}
           <div className="space-y-4">
             <h1 className='text-3xl font-bold text-[#D91C7D] text-center'>{title}</h1>
             <h2 className='text-xl text-gray-500 text-center'>{authors}</h2>
-            
+
             <p className='text-sm text-justify leading-relaxed'>{description}</p>
-            
+
             <div className='space-y-2'>
               <div className='text-[#d91c7e] text-sm font-medium'>GENRES:</div>
               <div className='text-sm text-gray-500 font-semibold'>{categories}</div>
@@ -192,8 +270,9 @@ const BookDetail = () => {
             {/* Average Rating for Mobile */}
             {averageRating && (
               <div className="mt-4">
-                <span className="font-semibold text-gray-700">Average Rating:</span>
-                <span className="ml-2 text-yellow-500">⭐ {averageRating}/5</span>
+                <span className="font-semibold text-[#d91c7d] underline" >Average Rating</span>
+                <span className="ml-2 text-gray-600"><FontAwesomeIcon icon={faStar} className='text-[#d91c7d] mx-1' />
+                  {averageRating}/5</span>
                 <span className="ml-2 text-gray-500">({reviews.length} review{reviews.length !== 1 ? 's' : ''})</span>
               </div>
             )}
@@ -205,27 +284,27 @@ const BookDetail = () => {
                   <p className="text-green-600 mb-4">
                     Welcome back, {user.name || user.email}! You can write a review.
                   </p>
-                  <ReviewForm 
-                    bookId={id} 
+                  <ReviewForm
+                    bookId={id}
                     onReviewSubmitted={handleReviewSubmitted}
                     user={user}
                   />
                 </div>
               ) : (
-                <div className="bg-gray-50 border rounded-lg p-6 text-center mb-6">
+                <div className="bg-gray-50 shadow-[0_0_1rem] shadow-gray-300 rounded-lg p-6 text-center mb-6">
                   <p className="text-gray-600 mb-3">Want to write a review?</p>
                   <button
                     onClick={handleLoginRedirect}
-                    className="px-6 py-2 bg-[#D91C7D] text-white rounded-md hover:bg-[#b8165a] transition-colors duration-200"
+                    className="px-6 py-2 bg-[#D91C7D] text-white rounded-full hover:bg-[#b8165a] transition-colors duration-200"
                   >
-                    Log In to Review
+                    LOGIN
                   </button>
                 </div>
               )}
 
               {/* Reviews Section for Mobile */}
-              <h2 className="text-xl font-bold text-gray-900 mb-4">User Reviews</h2>
-              
+              <h2 className="text-2xl font-bold text-[#d91c7d] mb-4 m-4">User Reviews</h2>
+
               {reviewsLoading ? (
                 <div className="flex items-center gap-3">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
@@ -233,32 +312,35 @@ const BookDetail = () => {
                 </div>
               ) : reviews.length === 0 ? (
                 <div className="text-center py-6">
-                  <p className="text-gray-500 text-base">📝 No reviews yet.</p>
+                  <p className="text-gray-500 text-base">No reviews yet.</p>
                   <p className="text-gray-400 text-sm mt-2">Be the first to review this book!</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
                   {reviews.map((review, index) => (
-                    <div key={review._id || review.id || index} className="bg-gray-50 border rounded-lg p-4 shadow-sm">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="font-semibold text-[#D91C7D]">
+                    <div
+                      key={review._id || review.id || index}
+                      className="bg-gray-50 shadow-[0_0_1rem] shadow-gray-300 rounded-lg p-4 h-40 cursor-pointer transition-all duration-500 hover:shadow-gray-500 hover:shadow-[0_0_1rem]"
+                      onClick={(e) => handleReviewClick(review, e)}
+                    >
+                      <div className="items-center justify-between mb-2">
+                        <p className="font-semibold text-lg underline text-[#D91C7D] truncate">
                           {review.userId?.name || review.userName || 'Anonymous'}
                         </p>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-0">
                           {[...Array(5)].map((_, i) => (
-                            <span key={i} className={i < review.rating ? 'text-yellow-400' : 'text-gray-300'}>
-                              ⭐
+                            <span key={i} className={i < review.rating ? 'text-[#d91c7d]' : 'text-gray-400'}>
+                              <FontAwesomeIcon icon={faStar} className="text-xs" />
                             </span>
+
                           ))}
-                          <span className="ml-2 text-sm text-gray-600">({review.rating}/5)</span>
+                          <span className='ml-2 text-sm text-gray-600'>({review.rating}/5)</span>
                         </div>
+                        
                       </div>
-                      <p className="text-gray-700 leading-relaxed">{review.review}</p>
-                      {review.createdAt && (
-                        <p className="text-xs text-gray-400 mt-2">
-                          {new Date(review.createdAt).toLocaleDateString()}
-                        </p>
-                      )}
+                      <p className="text-gray-800 leading-relaxed mt-4 mb-2 text-sm">
+                        {truncateText(review.review, 40)}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -289,9 +371,9 @@ const BookDetail = () => {
           <div className="p-4">
             <h1 className='text-5xl font-bold text-[#D91C7D] w-5/6'>{title}</h1>
             <h2 className='leading-loose text-2xl text-gray-500'>{authors}</h2>
-            
+
             <p className='mt-4 text-sm w-5/6 text-justify'>{description}</p>
-            
+
             <div className='mt-6 w-5/6'>
               <div className='text-[#d91c7e] text-sm font-medium'>GENRES:</div>
               <div className='text-sm text-gray-500 font-semibold mt-2'>{categories}</div>
@@ -305,76 +387,77 @@ const BookDetail = () => {
 
             {/* Average Rating for Desktop */}
             {averageRating && (
-              <div className="mt-6 w-5/6">
-                <span className="font-semibold text-gray-700">Average Rating:</span>
-                <span className="ml-2 text-yellow-500">⭐ {averageRating}/5</span>
+              <div className="mt-4">
+                <span className="font-semibold text-[#d91c7d] underline">Average Rating</span>
+                <span className="ml-2 text-gray-600"><FontAwesomeIcon icon={faStar} className='text-[#d91c7d] mx-1' />
+                  {averageRating}/5</span>
                 <span className="ml-2 text-gray-500">({reviews.length} review{reviews.length !== 1 ? 's' : ''})</span>
               </div>
             )}
 
             {/* Review Form for Desktop */}
-            <div className="mt-12  border-[#f13a98ae] border-t-1 pt-8 w-5/6">
+            <div className="mt-12 border-[#f13a98ae] border-t-1 pt-8 w-5/6">
               {isAuthenticated && user ? (
                 <div>
                   <p className="text-[#d91c7ec9] font-semibold tracking-wide mb-4">
                     Welcome back, {user.name || user.email}! You can write a review.
                   </p>
-                  <ReviewForm 
-                    bookId={id} 
+                  <ReviewForm
+                    bookId={id}
                     onReviewSubmitted={handleReviewSubmitted}
                     user={user}
                   />
                 </div>
               ) : (
-                <div className="bg-gray-50 shadow-[0_0_1.5rem] shadow-gray-300 rounded-lg p-6 text-center mb-6 w-1/2  m-auto ">
+                <div className="bg-gray-50 shadow-[0_0_1.5rem] shadow-gray-300 rounded-lg p-6 text-center mb-6 w-1/2 m-auto">
                   <p className="text-gray-600 mb-3 text-lg">Want to write a review?</p>
                   <button
                     onClick={handleLoginRedirect}
                     className="px-6 py-2 bg-[#D91C7D] tracking-wider text-white text-md font-bold rounded-full hover:bg-[#b8165a] transition-colors duration-200"
                   >
-                    LOG IN 
+                    LOG IN
                   </button>
                 </div>
               )}
 
               {/* Reviews Section for Desktop */}
               <h2 className="text-3xl font-bold text-[#d91c7d] mb-6 tracking-wide">User Reviews</h2>
-              
+
               {reviewsLoading ? (
                 <div className="flex-col items-center gap-3">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
                   <span className="text-gray-600">Loading reviews...</span>
                 </div>
               ) : reviews.length === 0 ? (
-                <div className="text-center py-8 shadow-[0_0_1.5rem] shadow-gray-300  rounded-xl ">
+                <div className="text-center py-8 shadow-[0_0_1.5rem] shadow-gray-300 rounded-xl">
                   <p className="text-[#d91c7d] tracking-wide text-2xl"> No reviews yet.</p>
                   <p className="text-gray-400 text-sm mt-2">Be the first to review this book!</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {reviews.map((review, index) => (
-                    <div key={review._id || review.id || index} className="bg-gray-50 shadow-[0_0_1rem] shadow-gray-300 rounded-lg p-4">
-                      <div className=" items-center justify-between mb-2">
-                        <p className="font-semibold text-lg text-[#D91C7D] ">
+                    <div
+                      key={review._id || review.id || index}
+                      className="bg-gray-50 shadow-[0_0_1rem] shadow-gray-300 rounded-lg p-4 h-40 cursor-pointer transition-all duration-300 hover:shadow-gray-500 hover:shadow-[0_0_1rem]"
+                      onClick={(e) => handleReviewClick(review, e)}
+                    >
+                      <div className="items-center justify-between mb-2">
+                        <p className="font-semibold text-lg text-[#D91C7D] truncate">
                           {review.userId?.name || review.userName || 'Anonymous'}
                         </p>
-                        <div className="flex items-center gap-0 text-sm">
-                          {/* {[...Array(5)].map((_, i) => (
-                            <span key={i} className={i < review.rating ? 'text-yellow-400' : 'text-gray-300'}>
-                              
+                       <div className="flex items-center gap-0">
+                          {[...Array(5)].map((_, i) => (
+                            <span key={i} className={i < review.rating ? 'text-[#d91c7d]' : 'text-gray-400'}>
+                              <FontAwesomeIcon icon={faStar} className="text-xs" />
                             </span>
-                          ))} */}
-                          <span>⭐ : </span>
-                          <span className="ml-2 text-sm text-gra">{review.rating}/5</span>
+
+                          ))}
+                          <span className='ml-2 text-sm text-gray-600'>({review.rating}/5)</span>
                         </div>
                       </div>
-                      <p className="text-gray-700 leading-relaxed mt-4 mb-2">{review.review}</p>
-                      {review.createdAt && (
-                        <p className="text-xs text-gray-400 mt-2">
-                          added on-  
-                          {new Date(review.createdAt).toLocaleDateString()}
-                        </p>
-                      )}
+                      <p className="text-gray-700 leading-relaxed mt-4 mb-2 text-sm">
+                        {truncateText(review.review, 50)}
+                      </p>
                     </div>
                   ))}
                 </div>

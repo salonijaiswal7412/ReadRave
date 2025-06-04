@@ -1,4 +1,7 @@
 import React, { useState, useContext,useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar } from '@fortawesome/free-solid-svg-icons';
+
 import AuthContext from '../context/AuthContext';
 
 const ReviewForm = ({ bookId, onReviewSubmitted, user }) => {
@@ -132,11 +135,13 @@ const ReviewForm = ({ bookId, onReviewSubmitted, user }) => {
                             <button
                                 key={star}
                                 type="button"
-                                onClick={() => setRating(star)}
-                                className={`text-2xl ${star <= rating ? 'text-yellow-400' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
+                                
+                                onMouseEnter={()=>setRating(star)}
+                                className={` cursor-pointer text-2xl ${star<= rating ? 'text-[#d91c7d]' : 'text-gray-300'} hover:text-[#d91c7d] transition-colors `}
                                 disabled={isSubmitting}
                             >
-                                ⭐
+                                <FontAwesomeIcon icon={faStar} />
+
                             </button>
                         ))}
                         <span className="ml-2 text-sm text-gray-600">
@@ -154,7 +159,7 @@ const ReviewForm = ({ bookId, onReviewSubmitted, user }) => {
                         value={review}
                         onChange={(e) => setReview(e.target.value)}
                         placeholder="What did you think about this book?"
-                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#D91C7D] focus:border-transparent resize-none"
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#D91C7D] focus:border-transparent resize-none "
                         rows="4"
                         disabled={isSubmitting}
                     />

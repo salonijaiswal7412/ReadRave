@@ -7,6 +7,7 @@ const cookieParser=require('cookie-parser');
 const connectDB=require('./config/config');
 const googleBooksRoutes = require('./routes/googleBookRoutes');
 const reviewRoutes=require('./routes/reviewRoutes');
+const path=require('path');
 
 const app = express();
 connectDB();
@@ -22,6 +23,7 @@ app.use(cors({
 
 app.use(express.urlencoded({ extended: true }));
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use("/api/users", userRoutes);

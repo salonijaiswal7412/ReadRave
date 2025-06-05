@@ -1,27 +1,28 @@
-const user=require('../models/userModel');
-const bcrypt=require('bcrypt');
-const User=require('../models/userModel');
-const validator=require('validator');
-const jwt=require('jsonwebtoken');
+const user = require('../models/userModel');
+const bcrypt = require('bcrypt');
+const User = require('../models/userModel');
+const validator = require('validator');
+const jwt = require('jsonwebtoken');
+const path = require('path');
 
 
-const createToken=(_id)=>{
-    return jwt.sign({_id},process.env.SECRET,{expiresIn:'3d'});
+const createToken = (_id) => {
+    return jwt.sign({ _id }, process.env.SECRET, { expiresIn: '3d' });
 }
 
-const signupUser=async (req,res)=>{
-    const {name,email,password}=req.body;
-    try{
-        const user=await User.signup(name,email,password);
-        const token=createToken(user._id);
-        res.status(200).json({email,token})
-    }catch(error){
-        res.status(400).json({error:error.message})
+const signupUser = async (req, res) => {
+    const { name, email, password } = req.body;
+    try {
+        const user = await User.signup(name, email, password);
+        const token = createToken(user._id);
+        res.status(200).json({ email, token })
+    } catch (error) {
+        res.status(400).json({ error: error.message })
     }
-    
+
 
 };
- 
+
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
@@ -32,32 +33,48 @@ const loginUser = async (req, res) => {
     try {
         const user = await User.login(email, password);
         const token = createToken(user._id);
-        res.status(200).json({ user, token,message:'successfully logged in' });
+        res.status(200).json({ user, token, message: 'successfully logged in' });
     } catch (error) {
-        
+
         res.status(400).json({ error: error.message });
     }
 };
 
-const getProfile=async(req,res)=>{
-     try {
-    // req.user is set by your protect middleware
-    const user = {
-      _id: req.user._id,
-      name: req.user.name,
-      email: req.user.email,
-      // Add any other profile fields you want to return
-      // avatar: req.user.avatar,
-      // createdAt: req.user.createdAt,
-      // etc.
-    };
+const getProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('name email profilePic bio favourites');
 
-    res.status(200).json(user);
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    res.status(500).json({ error: 'Server error while fetching profile' });
-  }
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ user }); // just sending name and email inside a 'user' object
+    } catch (error) {
+        console.error('Error in getProfile:', error.message);
+        res.status(500).json({ message: 'Server error' });
+    }
 };
 
+const updateProfilePicture = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
 
-module.exports={signupUser,loginUser,getProfile};
+        const imageUrl = `/uploads/${req.file.filename}`;
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { profilePic: imageUrl },
+            { new: true }
+        ).select('name email profilePic');
+
+        res.status(200).json({message:'Profile successfully updated',user});
+    }
+    catch(error){
+        console.error('Error updating profile picture:', error);
+    res.status(500).json({ message: 'Server error' });
+    }
+}
+
+
+module.exports = { signupUser, loginUser, getProfile, updateProfilePicture };

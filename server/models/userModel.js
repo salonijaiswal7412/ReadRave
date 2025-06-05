@@ -20,6 +20,20 @@ const userSchema = mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    profilePic:{
+        type:String,
+        default:'',
+    },
+    bio:{
+        type:String,
+        maxlength:200,
+        default:'',
+    },
+    favourites:{
+        type:[String],
+        default:[],
+    }
+
 });
 
 // Static signup method

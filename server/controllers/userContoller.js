@@ -76,5 +76,31 @@ const updateProfilePicture = async (req, res) => {
     }
 }
 
+const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
 
-module.exports = { signupUser, loginUser, getProfile, updateProfilePicture };
+    const { name, bio } = req.body;
+    const profilePic = req.file ? `/uploads/${req.file.filename}` : undefined;
+
+    const updates = {};
+    if (name) updates.name = name;
+    if (bio) updates.bio = bio;
+    if (profilePic) updates.profilePic = profilePic;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updates },
+      { new: true }
+    ).select('name email bio profilePic');
+
+    res.status(200).json({ user: updatedUser });
+  } catch (error) {
+    console.error('Update error:', error);
+    res.status(500).json({ message: 'Something went wrong' });
+  }
+};
+
+
+module.exports = { signupUser, loginUser, getProfile, updateProfilePicture ,updateProfile
+};

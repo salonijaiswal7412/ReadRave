@@ -5,13 +5,15 @@ import { faStar } from '@fortawesome/free-solid-svg-icons';
 import AuthContext from '../context/AuthContext';
 
 const ReviewForm = ({ bookId, onReviewSubmitted, user }) => {
+   
+
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
-    // Use AuthContext to get valid token
+    
     const { getValidToken, logout } = useContext(AuthContext);
 
     const handleSubmit = async (e) => {
@@ -114,11 +116,12 @@ const ReviewForm = ({ bookId, onReviewSubmitted, user }) => {
         <div className="bg-white border-gray-100 border-2 rounded-lg p-6 mb-6 shadow-[0_0_1.5rem] shadow-gray-300 ">
             <div className="flex items-center mb-4">
                 <div className="w-8 h-8 bg-[#D91C7D] rounded-full flex items-center justify-center text-white font-semibold mr-3">
-                    {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
+                    {user?.user?.name.charAt(0)?.toUpperCase() || user?.user?.name.charAt(0)?.toUpperCase() || 'U'}
                 </div>
                 <div>
+                
                     <p className="font- text-gray-600">
-                        Writing as<span className='font-bold text-[#d91c7edf] '> {user?.name || user?.email || 'User'}</span>
+                        Writing as<span className='font-bold text-[#d91c7edf] '> {user?.user?.name || user?.user?.email || 'User'}</span>
                     </p>
                     <p className="text-sm text-gray-500">Share your thoughts about this book</p>
                 </div>

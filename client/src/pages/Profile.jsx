@@ -6,6 +6,7 @@ import pfp from '../assets/images/pfp.png'
 import EditProfile from '../components/EditProfile';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
+import {Link} from'react-router-dom';
 
 // Toast Component
 const Toast = ({ message, type, onClose }) => {
@@ -23,7 +24,7 @@ const Toast = ({ message, type, onClose }) => {
         <div className={`fixed top-20 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 ease-in-out`}>
             <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">{message}</span>
-                <button 
+                <button
                     onClick={onClose}
                     className="ml-4 text-white hover:text-gray-200 font-bold text-lg leading-none"
                 >
@@ -128,7 +129,7 @@ function Profile() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            
+
             // Remove the deleted review from the state
             setUserReviews(userReviews.filter(review => review._id !== reviewId));
             showToast('Review deleted successfully!', 'success');
@@ -150,7 +151,7 @@ function Profile() {
     // Handler for updating a review
     const handleUpdateReview = async (e) => {
         e.preventDefault();
-        
+
         if (!editFormData.rating || !editFormData.review.trim()) {
             showToast('Please provide both rating and review text.', 'error');
             return;
@@ -171,8 +172,8 @@ function Profile() {
             );
 
             // Update the review in the local state
-            setUserReviews(userReviews.map(review => 
-                review._id === editingReview 
+            setUserReviews(userReviews.map(review =>
+                review._id === editingReview
                     ? { ...review, rating: editFormData.rating, review: editFormData.review }
                     : review
             ));
@@ -200,12 +201,12 @@ function Profile() {
     return (
         <div className='pt-14 px-10 max-w-screen min-h-screen bg-white'>
             <Navbar />
-            
+
             {/* Toast Notification */}
             {toast && (
-                <Toast 
-                    message={toast.message} 
-                    type={toast.type} 
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
                     onClose={hideToast}
                 />
             )}
@@ -285,7 +286,9 @@ function Profile() {
                                                 <h3 className="text-[#d91c7d] underline font-semibold text-base flex items-start">
                                                     <span className="text-xl  flex-shrink-0"></span>
                                                     <span className="truncate">
-                                                        {bookTitles[rev.bookId] || 'Loading...'}
+                                                        <Link to={`/book/${rev.bookId}`} className="hover:underline text-[#D91C7D]">
+                                                            {bookTitles[rev.bookId] || 'Loading...'}
+                                                        </Link>
                                                     </span>
                                                 </h3>
                                                 <div className="flex items-center mt-2">
@@ -319,7 +322,7 @@ function Profile() {
                                                     </label>
                                                     <select
                                                         value={editFormData.rating}
-                                                        onChange={(e) => setEditFormData({...editFormData, rating: parseInt(e.target.value)})}
+                                                        onChange={(e) => setEditFormData({ ...editFormData, rating: parseInt(e.target.value) })}
                                                         className="w-full p-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-[#d91c7d] focus:border-transparent"
                                                         required
                                                     >
@@ -337,7 +340,7 @@ function Profile() {
                                                     </label>
                                                     <textarea
                                                         value={editFormData.review}
-                                                        onChange={(e) => setEditFormData({...editFormData, review: e.target.value})}
+                                                        onChange={(e) => setEditFormData({ ...editFormData, review: e.target.value })}
                                                         className="w-full p-2 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-[#d91c7d] focus:border-transparent resize-none flex-1"
                                                         rows="5"
                                                         placeholder="Write your review..."
@@ -368,13 +371,13 @@ function Profile() {
                                                 </p>
 
                                                 <div className="flex gap-3 pt-2 border-t border-gray-100 mt-auto">
-                                                    <button 
+                                                    <button
                                                         onClick={() => handleEditReview(rev)}
                                                         className="text-xs text-blue-600 hover:text-blue-800 hover:underline transition-colors"
                                                     >
                                                         Edit
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         onClick={() => handleDeleteReview(rev._id)}
                                                         className="text-xs text-red-600 hover:text-red-800 hover:underline transition-colors"
                                                     >
@@ -389,7 +392,7 @@ function Profile() {
                         </div>
                     )}
 
-                    
+
                     <style jsx>{`
                         .reviews-container::-webkit-scrollbar {
                             height: 4px;

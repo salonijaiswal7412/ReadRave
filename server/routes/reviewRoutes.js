@@ -7,7 +7,7 @@ const router = express.Router();
 // GET /api/reviews/user
 router.get("/user", protect, async (req, res) => {
   try {
-    console.log("User ID from token:", req.user._id);
+    
     const reviews = await Review.find({ userId: req.user._id.toString() });
     res.json(reviews);
   } catch (err) {
@@ -29,7 +29,6 @@ router.delete("/:id", protect, async (req, res) => {
   try {
     const reviewId = req.params.id;
 
-    // Find the review and check if it belongs to the user
     const existingReview = await Review.findOne({ 
       _id: reviewId, 
       userId: req.user._id 
@@ -39,7 +38,7 @@ router.delete("/:id", protect, async (req, res) => {
       return res.status(404).json({ error: "Review not found or unauthorized" });
     }
 
-    // Delete the review
+   
     await Review.findByIdAndDelete(reviewId);
 
     res.json({ message: 'Review deleted successfully' });
@@ -54,7 +53,7 @@ router.put("/:id", protect, async (req, res) => {
     const { rating, review } = req.body;
     const reviewId = req.params.id;
 
-    // Find the review and check if it belongs to the user
+   
     const existingReview = await Review.findOne({ 
       _id: reviewId, 
       userId: req.user._id 
@@ -64,7 +63,7 @@ router.put("/:id", protect, async (req, res) => {
       return res.status(404).json({ error: "Review not found or unauthorized" });
     }
 
-    // Update the review
+    
     const updatedReview = await Review.findByIdAndUpdate(
       reviewId,
       { rating, review },

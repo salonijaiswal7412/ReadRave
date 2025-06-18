@@ -1,27 +1,55 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logo from '../assets/images/logo.png';
+import pfp from '../assets/images/pfp.png';
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
+import axios from 'axios';
 import AuthContext from '../context/AuthContext';
-
-
 
 const Navbar = () => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [user, setUser] = useState(null);
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const { isAuthenticated, logout, token } = useContext(AuthContext);
 
   const navigate = useNavigate();
+  
   function handleLogout(){
     logout();
-    
-
   };
+
+  const handleProfileClick = () => {
+    navigate('/profile');
+  };
+
+  // Fetch user profile data when authenticated
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!token || !isAuthenticated) {
+        setUser(null);
+        return;
+      }
+
+      try {
+        const res = await axios.get('http://localhost:5000/api/users/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUser(res.data.user);
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error.message);
+        setUser(null);
+      }
+    };
+
+    fetchUserProfile();
+  }, [token, isAuthenticated]);
 
   // Fetch suggestions when query changes
   useEffect(() => {
@@ -129,24 +157,48 @@ const Navbar = () => {
         )}
       </div>
       
-      {/* Right - Sign-in Button */}
+      {/* Right - Authentication Section */}
       <div className="flex items-center">
-  {isAuthenticated ? (
-    <button 
-      onClick={handleLogout} 
-      className="text-white font-medium tracking-wider bg-[#D91C7D] rounded-full hover:bg-pink-700 focus:outline-none focus:ring-1 focus:ring-[#D91C7D] focus:ring-offset-2 px-4 py-1"
-    >
-      Logout
-    </button>
-  ) : (
-    <Link 
-      to='/signup' 
-      className="text-white font-medium tracking-wider bg-[#D91C7D] rounded-full hover:bg-pink-700 focus:outline-none focus:ring-1 focus:ring-[#D91C7D] focus:ring-offset-2 px-4 py-1"
-    >
-      Sign-in 
-    </Link>
-  )}
-</div>
+        {isAuthenticated ? (
+          <div className="flex items-center space-x-3">
+            {/* Profile Photo */}
+            
+            
+            {/* Logout Button */}
+            <button 
+              onClick={handleLogout} 
+              className="text-white font-medium tracking-wider bg-[#D91C7D] rounded-full hover:bg-pink-700 focus:outline-none focus:ring-1 focus:ring-[#D91C7D] focus:ring-offset-2 px-4 py-1"
+            >
+              Logout
+            </button>
+            <div 
+              onClick={handleProfileClick}
+              className="w-8 h-8 rounded-full overflow-hidden cursor-pointer hover:ring-2 hover:ring-[#D91c7d] transition-all duration-200"
+            >
+              {user?.profilePic ? (
+                <img
+                  src={`http://localhost:5000${user.profilePic}`}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src={pfp}
+                  alt="Default Profile"
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
+          </div>
+        ) : (
+          <Link 
+            to='/signup' 
+            className="text-white font-medium tracking-wider bg-[#D91C7D] rounded-full hover:bg-pink-700 focus:outline-none focus:ring-1 focus:ring-[#D91C7D] focus:ring-offset-2 px-4 py-1"
+          >
+            Sign-in 
+          </Link>
+        )}
+      </div>
     </nav>
   );
 };

@@ -3,6 +3,19 @@ const Review = require("../models/reviewModel");
 const protect = require("../middlewares/authMiddleware");
 const router = express.Router();
 
+
+// GET /api/reviews/user
+router.get("/user", protect, async (req, res) => {
+  try {
+    console.log("User ID from token:", req.user._id);
+    const reviews = await Review.find({ userId: req.user._id.toString() });
+    res.json(reviews);
+  } catch (err) {
+    console.error('Error fetching user reviews:', err);
+    res.status(500).json({ error: 'Server error while fetching user reviews' });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     const reviews = await Review.find({ bookId: req.params.id }).populate("userId", "name");
@@ -11,6 +24,7 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ error: "failed to fetch reviews" });
   }
 });
+
 
 router.post("/", protect, async (req, res) => {
   const { bookId, rating, review: reviewText } = req.body; 

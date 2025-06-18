@@ -25,6 +25,59 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+router.delete("/:id", protect, async (req, res) => {
+  try {
+    const reviewId = req.params.id;
+
+    // Find the review and check if it belongs to the user
+    const existingReview = await Review.findOne({ 
+      _id: reviewId, 
+      userId: req.user._id 
+    });
+
+    if (!existingReview) {
+      return res.status(404).json({ error: "Review not found or unauthorized" });
+    }
+
+    // Delete the review
+    await Review.findByIdAndDelete(reviewId);
+
+    res.json({ message: 'Review deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete review" });
+  }
+});
+
+router.put("/:id", protect, async (req, res) => {
+  try {
+    const { rating, review } = req.body;
+    const reviewId = req.params.id;
+
+    // Find the review and check if it belongs to the user
+    const existingReview = await Review.findOne({ 
+      _id: reviewId, 
+      userId: req.user._id 
+    });
+
+    if (!existingReview) {
+      return res.status(404).json({ error: "Review not found or unauthorized" });
+    }
+
+    // Update the review
+    const updatedReview = await Review.findByIdAndUpdate(
+      reviewId,
+      { rating, review },
+      { new: true }
+    );
+
+    res.json({ message: 'Review updated successfully', review: updatedReview });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update review" });
+  }
+});
+
 
 router.post("/", protect, async (req, res) => {
   const { bookId, rating, review: reviewText } = req.body; 

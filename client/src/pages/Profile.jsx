@@ -7,12 +7,51 @@ import EditProfile from '../components/EditProfile';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 
+// Toast Component
+const Toast = ({ message, type, onClose }) => {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onClose();
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, [onClose]);
+
+    const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+
+    return (
+        <div className={`fixed top-20 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 ease-in-out`}>
+            <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">{message}</span>
+                <button 
+                    onClick={onClose}
+                    className="ml-4 text-white hover:text-gray-200 font-bold text-lg leading-none"
+                >
+                    ×
+                </button>
+            </div>
+        </div>
+    );
+};
+
 function Profile() {
     const { token, loading } = useContext(AuthContext);
     const [user, setUser] = useState(null);
     const [showEdit, setShowEdit] = useState(false);
     const [userReviews, setUserReviews] = useState([]);
     const [bookTitles, setBookTitles] = useState({});
+    const [editingReview, setEditingReview] = useState(null);
+    const [editFormData, setEditFormData] = useState({ rating: 0, review: '' });
+    const [toast, setToast] = useState(null);
+
+    // Toast helper function
+    const showToast = (message, type = 'info') => {
+        setToast({ message, type });
+    };
+
+    const hideToast = () => {
+        setToast(null);
+    };
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -71,10 +110,87 @@ function Profile() {
         fetchUserReviews();
     }, [token]);
 
-    // New handler to update user locally after editing
+    // Handler to update user locally after editing profile
     const handleProfileUpdate = (updatedUser) => {
         setUser(updatedUser);
         setShowEdit(false);
+    };
+
+    // Handler for deleting a review
+    const handleDeleteReview = async (reviewId) => {
+        if (!window.confirm('Are you sure you want to delete this review?')) {
+            return;
+        }
+
+        try {
+            await axios.delete(`http://localhost:5000/api/reviews/${reviewId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            
+            // Remove the deleted review from the state
+            setUserReviews(userReviews.filter(review => review._id !== reviewId));
+            showToast('Review deleted successfully!', 'success');
+        } catch (error) {
+            console.error('Failed to delete review:', error);
+            showToast('Failed to delete review. Please try again.', 'error');
+        }
+    };
+
+    // Handler for starting to edit a review
+    const handleEditReview = (review) => {
+        setEditingReview(review._id);
+        setEditFormData({
+            rating: review.rating,
+            review: review.review
+        });
+    };
+
+    // Handler for updating a review
+    const handleUpdateReview = async (e) => {
+        e.preventDefault();
+        
+        if (!editFormData.rating || !editFormData.review.trim()) {
+            showToast('Please provide both rating and review text.', 'error');
+            return;
+        }
+
+        try {
+            const response = await axios.put(
+                `http://localhost:5000/api/reviews/${editingReview}`,
+                {
+                    rating: editFormData.rating,
+                    review: editFormData.review
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            // Update the review in the local state
+            setUserReviews(userReviews.map(review => 
+                review._id === editingReview 
+                    ? { ...review, rating: editFormData.rating, review: editFormData.review }
+                    : review
+            ));
+
+            // Reset editing state
+            setEditingReview(null);
+            setEditFormData({ rating: 0, review: '' });
+            showToast('Review updated successfully!', 'success');
+        } catch (error) {
+            console.error('Failed to update review:', error);
+            showToast('Failed to update review. Please try again.', 'error');
+        }
+    };
+
+    // Handler for canceling edit
+    const handleCancelEdit = () => {
+        setEditingReview(null);
+        setEditFormData({ rating: 0, review: '' });
     };
 
     if (loading) return <p>Loading...</p>;
@@ -84,6 +200,16 @@ function Profile() {
     return (
         <div className='pt-14 px-10 max-w-screen min-h-screen bg-white'>
             <Navbar />
+            
+            {/* Toast Notification */}
+            {toast && (
+                <Toast 
+                    message={toast.message} 
+                    type={toast.type} 
+                    onClose={hideToast}
+                />
+            )}
+
             <div className="main w-full max-w-6xl mx-auto">
                 {/* Profile Section */}
                 <div className="profile bg-[#d91c7d] shadow-[0_0_2rem] shadow-gray-500 p-6 h-60 rounded-xl mb-8 flex">
@@ -153,7 +279,7 @@ function Profile() {
                         <div className="reviews-container overflow-x-auto pb-2">
                             <div className="flex gap-4 min-w-max">
                                 {userReviews.map((rev) => (
-                                    <div key={rev._id} className="bg-white p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md hover:border-1 hover:border-[#d91c7d] transition-shadow flex-shrink-0 w-80 h-48 flex flex-col">
+                                    <div key={rev._id} className={`bg-white p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md hover:border-1 hover:border-[#d91c7d] transition-shadow flex-shrink-0 flex flex-col ${editingReview === rev._id ? 'w-96' : 'w-80'}`}>
                                         <div className="flex items-start justify-between mb-3">
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="text-[#d91c7d] underline font-semibold text-base flex items-start">
@@ -184,18 +310,79 @@ function Profile() {
                                             </div>
                                         </div>
 
-                                        <p className="text-gray-700 text-sm leading-relaxed mb-3 line-clamp-3 flex-1 overflow-hidden">
-                                            {rev.review}
-                                        </p>
+                                        {editingReview === rev._id ? (
+                                            // Edit Form
+                                            <form onSubmit={handleUpdateReview} className="flex-1 flex flex-col">
+                                                <div className="mb-3">
+                                                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                        Rating
+                                                    </label>
+                                                    <select
+                                                        value={editFormData.rating}
+                                                        onChange={(e) => setEditFormData({...editFormData, rating: parseInt(e.target.value)})}
+                                                        className="w-full p-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-[#d91c7d] focus:border-transparent"
+                                                        required
+                                                    >
+                                                        <option value={0}>Select Rating</option>
+                                                        <option value={1}>1 Star</option>
+                                                        <option value={2}>2 Stars</option>
+                                                        <option value={3}>3 Stars</option>
+                                                        <option value={4}>4 Stars</option>
+                                                        <option value={5}>5 Stars</option>
+                                                    </select>
+                                                </div>
+                                                <div className="mb-3 flex-1">
+                                                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                        Review
+                                                    </label>
+                                                    <textarea
+                                                        value={editFormData.review}
+                                                        onChange={(e) => setEditFormData({...editFormData, review: e.target.value})}
+                                                        className="w-full p-2 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-[#d91c7d] focus:border-transparent resize-none flex-1"
+                                                        rows="5"
+                                                        placeholder="Write your review..."
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className="flex gap-2 pt-2 border-t border-gray-100 mt-auto">
+                                                    <button
+                                                        type="submit"
+                                                        className="text-xs bg-[#d91c7d] text-white px-3 py-1 rounded hover:bg-[#b91c5c] transition-colors"
+                                                    >
+                                                        Save
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleCancelEdit}
+                                                        className="text-xs bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition-colors"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        ) : (
+                                            // Display Mode
+                                            <>
+                                                <p className="text-gray-700 text-sm leading-relaxed mb-3 line-clamp-3 flex-1 overflow-hidden">
+                                                    {rev.review}
+                                                </p>
 
-                                        <div className="flex gap-3 pt-2 border-t border-gray-100 mt-auto">
-                                            <button className="text-xs text-blue-600 hover:text-blue-800 hover:underline transition-colors">
-                                                 Edit
-                                            </button>
-                                            <button className="text-xs text-red-600 hover:text-red-800 hover:underline transition-colors ">
-                                                 Delete
-                                            </button>
-                                        </div>
+                                                <div className="flex gap-3 pt-2 border-t border-gray-100 mt-auto">
+                                                    <button 
+                                                        onClick={() => handleEditReview(rev)}
+                                                        className="text-xs text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteReview(rev._id)}
+                                                        className="text-xs text-red-600 hover:text-red-800 hover:underline transition-colors"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                 ))}
                             </div>

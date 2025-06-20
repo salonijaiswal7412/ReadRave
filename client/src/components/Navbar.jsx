@@ -115,7 +115,7 @@ const Navbar = () => {
         <input
           ref={searchRef}
           type="text"
-          className="bg-transparent text-lg border-none outline-none pl-4 text-[#2A92C9] opacity-60 w-full"
+          className="bg-transparent text-lg border-none outline-none pl-4 text-[#2A92C9] opacity-90 w-full"
           placeholder="Search for Books"
           value={query}
           onChange={(e) => setQuery(e.target.value)}

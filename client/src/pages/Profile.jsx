@@ -6,7 +6,7 @@ import pfp from '../assets/images/pfp.png'
 import EditProfile from '../components/EditProfile';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
-import {Link} from'react-router-dom';
+import { Link } from 'react-router-dom';
 
 // Toast Component
 const Toast = ({ message, type, onClose }) => {
@@ -21,12 +21,12 @@ const Toast = ({ message, type, onClose }) => {
     const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
 
     return (
-        <div className={`fixed top-20 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 ease-in-out`}>
+        <div className={`fixed top-20 right-4 ${bgColor} text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 ease-in-out max-w-xs sm:max-w-sm`}>
             <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">{message}</span>
+                <span className="text-xs sm:text-sm font-medium">{message}</span>
                 <button
                     onClick={onClose}
-                    className="ml-4 text-white hover:text-gray-200 font-bold text-lg leading-none"
+                    className="ml-2 sm:ml-4 text-white hover:text-gray-200 font-bold text-lg leading-none"
                 >
                     ×
                 </button>
@@ -44,6 +44,12 @@ function Profile() {
     const [editingReview, setEditingReview] = useState(null);
     const [editFormData, setEditFormData] = useState({ rating: 0, review: '' });
     const [toast, setToast] = useState(null);
+
+    const [shelfStats, setSelfStats] = useState({
+        wantToRead: 0,
+        currentlyReading: 0,
+        finishedReading: 0
+    });
 
     // Toast helper function
     const showToast = (message, type = 'info') => {
@@ -107,8 +113,38 @@ function Profile() {
             setBookTitles(titles);
         };
 
+        const fetchShelf = async () => {
+            if (!token) return;
+
+            try {
+                const res = await axios.get("http://localhost:5000/api/reading-list", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                const stats = {
+                    wantToRead: 0,
+                    currentlyReading: 0,
+                    finishedReading: 0
+                };
+
+                res.data.forEach((item) => {
+                    if (stats[item.status] != undefined) {
+                        stats[item.status]++;
+                    }
+                });
+
+                setSelfStats(stats);
+            }
+            catch (err) {
+                console.error("error fetching reading list:", err.message);
+            }
+        };
+
         fetchProfile();
         fetchUserReviews();
+        fetchShelf();
     }, [token]);
 
     // Handler to update user locally after editing profile
@@ -199,7 +235,7 @@ function Profile() {
     if (!user) return <p>Loading profile...</p>;
 
     return (
-        <div className='pt-14 px-10 max-w-screen min-h-screen bg-white'>
+        <div className='pt-14 px-4 sm:px-6 md:px-8 lg:px-10 max-w-screen min-h-screen bg-white'>
             <Navbar />
 
             {/* Toast Notification */}
@@ -213,78 +249,98 @@ function Profile() {
 
             <div className="main w-full max-w-6xl mx-auto">
                 {/* Profile Section */}
-                <div className="profile bg-[#d91c7d] shadow-[0_0_2rem] shadow-gray-500 p-6 h-60 rounded-xl mb-8 flex">
-                    <div className="p-dets flex-1 pr-6">
-                        <h1 className='font-semibold text-3xl text-pink-300'>Welcome back ReadRaver,</h1>
-                        <h1 className='text-5xl font-bold tracking-wide text-white uppercase mt-2'>{user.name}!</h1>
+                <div className="flex flex-col lg:flex-row gap-4 lg:gap-0">
+                    <div className="profile bg-[#d91c7d] shadow-[0_0_2rem] shadow-gray-500 p-4 sm:p-6 h-auto lg:h-60 rounded-xl mb-4 lg:mb-8 flex flex-col sm:flex-row w-full lg:w-4/6">
+                        <div className="p-dets flex-1 pr-0 sm:pr-6 mb-4 sm:mb-0">
+                            <h1 className='font-semibold text-xl sm:text-2xl lg:text-3xl text-pink-300'>Welcome back ReadRaver,</h1>
+                            <h1 className='text-2xl sm:text-3xl lg:text-5xl font-bold tracking-wide text-white uppercase mt-2'>{user.name}!</h1>
 
-                        {user.bio ? (
-                            <div className='text-pink-300 text-lg mt-4'>{user.bio}</div>
-                        ) : (
-                            <div className='text-pink-300 text-lg mt-4'>no bio yet</div>
-                        )}
+                            {user.bio ? (
+                                <div className='text-pink-300 text-sm sm:text-base lg:text-lg mt-2 lg:mt-4'>{user.bio}</div>
+                            ) : (
+                                <div className='text-pink-300 text-sm sm:text-base lg:text-lg mt-2 lg:mt-4'>no bio yet</div>
+                            )}
 
-                        <button
-                            onClick={() => setShowEdit(true)}
-                            className="mt-4 px-4 py-2 bg-white text-[#d91c7d] font-bold rounded-full shadow-[0_0_0.3rem] shadow-gray-300 hover:font-bold hover:shadow-[0_0_0.7rem] hover:shadow-gray-800 transition  uppercase duration-300"
-                        >
-                            Edit Profile
-                        </button>
+                            <button
+                                onClick={() => setShowEdit(true)}
+                                className="mt-2 lg:mt-4 px-3 py-1 sm:px-4 sm:py-2 bg-white text-[#d91c7d] text-sm sm:text-base font-bold rounded-full shadow-[0_0_0.3rem] shadow-gray-300 hover:font-bold hover:shadow-[0_0_0.7rem] hover:shadow-gray-800 transition uppercase duration-300"
+                            >
+                                Edit Profile
+                            </button>
 
-                        {showEdit && (
-                            <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
-                                <div className="bg-[rgb(255,255,255)] p-6 rounded-lg w-full max-w-md shadow-2xl">
-                                    <EditProfile
-                                        userData={user}
-                                        closeModal={() => setShowEdit(false)}
-                                        onProfileUpdate={handleProfileUpdate}
-                                    />
+                            {showEdit && (
+                                <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
+                                    <div className="bg-[rgb(255,255,255)] p-4 sm:p-6 rounded-lg w-full max-w-md shadow-2xl">
+                                        <EditProfile
+                                            userData={user}
+                                            closeModal={() => setShowEdit(false)}
+                                            onProfileUpdate={handleProfileUpdate}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
+                            )}
+                        </div>
 
-                    <div className="p-pic flex-shrink-0">
-                        {user.profilePic ? (
-                            <img
-                                src={`http://localhost:5000${user.profilePic}`}
-                                alt="Profile"
-                                className='w-40 h-40 rounded-full shadow-[0_0_1rem] shadow-gray-800 object-cover'
-                            />
-                        ) : (
-                            <img
-                                src={pfp}
-                                alt="Profile"
-                                className='w-40 h-40 rounded-full shadow-[0_0_1rem] shadow-gray-800 object-cover'
-                            />
-                        )}
+                        <div className="p-pic flex-shrink-0 flex justify-center sm:justify-end">
+                            {user.profilePic ? (
+                                <img
+                                    src={`http://localhost:5000${user.profilePic}`}
+                                    alt="Profile"
+                                    className='w-32 h-32 sm:w-40 sm:h-40 lg:w-50 lg:h-50 rounded-full shadow-[0_0_1rem] shadow-gray-800 object-cover'
+                                />
+                            ) : (
+                                <img
+                                    src={pfp}
+                                    alt="Profile"
+                                    className='w-32 h-32 sm:w-40 sm:h-40 rounded-full shadow-[0_0_1rem] shadow-gray-800 object-cover'
+                                />
+                            )}
+                        </div>
+                    </div>
+                    
+                    <div className="shelf w-full lg:w-2/6 mx-0 lg:mx-4 p-4 shadow-[0_0_2rem] shadow-gray-500 h-auto lg:h-60 rounded-xl mb-4 lg:mb-0">
+                        <h1 className='text-[#d91c7d] font-bold tracking-wide uppercase text-center text-lg sm:text-xl lg:text-2xl my-2 lg:my-4'>Rave Report</h1>
+                        <div className="flex flex-col gap-2 lg:gap-3 text-sm mt-2 lg:mt-4 text-gray-700 mx-2 sm:mx-4 lg:mx-6">
+                            <div className="flex justify-between text-base sm:text-lg font-semibold items-center opacity-85">
+                                <span>📚 Want to Read</span>
+                                <span className="text-[#d91c7d] font-bold">{shelfStats.wantToRead}</span>
+                            </div>
+                            <div className="flex justify-between text-base sm:text-lg font-semibold items-center opacity-85">
+                                <span>📖 Currently Reading</span>
+                                <span className="text-[#d91c7d] font-bold">{shelfStats.currentlyReading}</span>
+                            </div>
+                            <div className="flex justify-between text-base sm:text-lg font-semibold items-center opacity-85">
+                                <span>✅ Finished Reading</span>
+                                <span className="text-[#d91c7d] font-bold">{shelfStats.finishedReading}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 {/* Reviews Section */}
-                <div className="reviews-section bg-pink-50 rounded-xl shadow-[0_0_1rem] shadow-gray-300 p-4">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-2xl font-bold text-[#D91C7D]">My Reviews</h2>
+                <div className="reviews-section bg-pink-50 rounded-xl shadow-[0_0_1rem] shadow-gray-300 p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2 sm:gap-0">
+                        <h2 className="text-xl sm:text-2xl font-bold text-[#D91C7D]">My Reviews</h2>
                         <div className="text-sm text-gray-600">
                             {userReviews.length} {userReviews.length === 1 ? 'review' : 'reviews'}
                         </div>
                     </div>
 
                     {userReviews.length === 0 ? (
-                        <div className="text-center py-8">
-                            <div className="text-4xl mb-3">📚</div>
-                            <p className="text-gray-600">You haven't written any reviews yet.</p>
-                            <p className="text-gray-500 text-sm mt-1">Start reading and sharing your thoughts!</p>
+                        <div className="text-center py-6 sm:py-8">
+                            <div className="text-3xl sm:text-4xl mb-3">📚</div>
+                            <p className="text-gray-600 text-sm sm:text-base">You haven't written any reviews yet.</p>
+                            <p className="text-gray-500 text-xs sm:text-sm mt-1">Start reading and sharing your thoughts!</p>
                         </div>
                     ) : (
                         <div className="reviews-container overflow-x-auto pb-2">
-                            <div className="flex gap-4 min-w-max">
+                            <div className="flex gap-3 sm:gap-4 min-w-max">
                                 {userReviews.map((rev) => (
-                                    <div key={rev._id} className={`bg-white p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md hover:border-1 hover:border-[#d91c7d] transition-shadow flex-shrink-0 flex flex-col ${editingReview === rev._id ? 'w-96' : 'w-80'}`}>
+                                    <div key={rev._id} className={`bg-white p-3 sm:p-4 border border-gray-200 rounded-lg shadow-[0_0_.7rem] shadow-gray-200 hover:border-1 hover:shadow-[0_0_.5rem] hover:shadow-gray-400 transition-shadow flex-shrink-0 flex flex-col w-72 sm:w-80`}>
                                         <div className="flex items-start justify-between mb-3">
                                             <div className="flex-1 min-w-0">
-                                                <h3 className="text-[#d91c7d] underline font-semibold text-base flex items-start">
-                                                    <span className="text-xl  flex-shrink-0"></span>
+                                                <h3 className="text-[#d91c7d] underline font-semibold text-sm sm:text-base flex items-start">
+                                                    <span className="text-lg sm:text-xl flex-shrink-0"></span>
                                                     <span className="truncate">
                                                         <Link to={`/book/${rev.bookId}`} className="hover:underline text-[#D91C7D]">
                                                             {bookTitles[rev.bookId] || 'Loading...'}
@@ -292,7 +348,7 @@ function Profile() {
                                                     </span>
                                                 </h3>
                                                 <div className="flex items-center mt-2">
-                                                    <div className="flex text-sm">
+                                                    <div className="flex text-xs sm:text-sm">
                                                         {[...Array(5)].map((_, i) => (
                                                             <span key={i} className={i < rev.rating ? "text-[#d91c7d]" : "text-gray-300"}>
                                                                 <FontAwesomeIcon icon={faStar} />
@@ -366,7 +422,7 @@ function Profile() {
                                         ) : (
                                             // Display Mode
                                             <>
-                                                <p className="text-gray-700 text-sm leading-relaxed mb-3 line-clamp-3 flex-1 overflow-hidden">
+                                                <p className="text-gray-700 text-xs sm:text-sm leading-relaxed mb-3 line-clamp-3 flex-1 overflow-hidden">
                                                     {rev.review}
                                                 </p>
 
@@ -391,7 +447,6 @@ function Profile() {
                             </div>
                         </div>
                     )}
-
 
                     <style jsx>{`
                         .reviews-container::-webkit-scrollbar {

@@ -6,8 +6,8 @@ router.get('/', async (req, res) => {
   const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20`;
 
   try {
-    const fetch = await import('node-fetch'); // 👈 dynamic import here
-    const response = await fetch.default(url); // 👈 use .default
+    const fetch = await import('node-fetch'); 
+    const response = await fetch.default(url); 
     const data = await response.json();
 
     const books = data.items?.map((item) => ({

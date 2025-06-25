@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const readListController = require('../controllers/readListController');
-const requireAuth = require('../middlewares/authMiddleware')
+const protect = require('../middlewares/authMiddleware')
 
-router.use(requireAuth);
+router.use(protect);
 
 router.post('/', readListController.addToReadList);
 router.get('/', readListController.getReadList);

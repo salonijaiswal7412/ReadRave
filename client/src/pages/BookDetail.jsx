@@ -4,8 +4,35 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import ReviewForm from '../components/ReviewForm';
 import AuthContext from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons';
+import { faStar, faCheck, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 
+// Toast Component
+const Toast = ({ message, type = 'success', onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+  const icon = type === 'success' ? faCheck : faExclamationTriangle;
+
+  return (
+    <div className={`fixed top-20 right-4 z-50 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in-right`}>
+      <FontAwesomeIcon icon={icon} />
+      <span className="font-medium">{message}</span>
+      <button 
+        onClick={onClose}
+        className="ml-2 text-white hover:text-gray-200 font-bold text-lg"
+      >
+        ×
+      </button>
+    </div>
+  );
+};
 
 const BookDetail = () => {
   const { id } = useParams();
@@ -21,6 +48,24 @@ const BookDetail = () => {
   const [error, setError] = useState(null);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [selectedReview, setSelectedReview] = useState(null);
+  
+  // Individual loading states for each shelf button
+  const [shelfLoadingStates, setShelfLoadingStates] = useState({
+    wantToRead: false,
+    currentlyReading: false,
+    finishedReading: false
+  });
+
+  // Toast state
+  const [toast, setToast] = useState(null);
+
+  // Get token from localStorage or context
+  const token = localStorage.getItem('token');
+
+  // Show toast function
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
 
   // Debug logs
   useEffect(() => {
@@ -106,6 +151,56 @@ const BookDetail = () => {
     fetchReviews();
   }, [id]);
 
+  // Updated handleAddToShelf function with individual loading states
+  const handleAddToShelf = async (status) => {
+    // Check if user is authenticated
+    if (!isAuthenticated || !token) {
+      showToast('Please login to add books to your shelf', 'error');
+      handleLoginRedirect();
+      return;
+    }
+
+    try {
+      // Set loading state for specific button
+      setShelfLoadingStates(prev => ({ ...prev, [status]: true }));
+      console.log('Adding to shelf:', { googleBookId: id, status, token: token ? 'exists' : 'missing' });
+
+      const response = await axios.post("http://localhost:5000/api/reading-list", {
+        googleBookId: id,
+        status
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Add to shelf response:', response.data);
+      
+      // Format status for display (convert camelCase to readable text)
+      const statusDisplay = status.replace(/([A-Z])/g, ' $1').toLowerCase();
+      showToast(`Book added to "${statusDisplay}" shelf!`, 'success');
+      
+    } catch (err) {
+      console.error("Error adding to shelf:", err);
+      
+      if (err.response?.status === 409) {
+        showToast("This book is already in your shelf!", 'error');
+      } else if (err.response?.status === 401) {
+        showToast("Authentication failed. Please login again.", 'error');
+        handleLoginRedirect();
+      } else if (err.response?.data?.error) {
+        showToast(`Error: ${err.response.data.error}`, 'error');
+      } else {
+        console.error("Full error:", err.response || err.message);
+        showToast("Failed to add book to shelf. Please try again.", 'error');
+      }
+    } finally {
+      // Clear loading state for specific button
+      setShelfLoadingStates(prev => ({ ...prev, [status]: false }));
+    }
+  };
+
   // Handle review submission callback
   const handleReviewSubmitted = () => {
     fetchReviews(); // Refresh reviews after submission
@@ -189,6 +284,15 @@ const BookDetail = () => {
     <div className="overflow-x-hidden">
       <Navbar />
 
+      {/* Toast Notification */}
+      {toast && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+
       {/* Click Modal for Review Details */}
       {selectedReview && (
         <div
@@ -233,8 +337,9 @@ const BookDetail = () => {
       )}
 
       {/* Mobile Layout */}
-      <div className="md:hidden min-h-screen bg-white">
-        <div className="p-4 pt-6">
+      <div className="md:hidden min-h-screen bg-white ">
+        <div className="flex"></div>
+        <div className="p-4 pt-14">
           {/* Book Cover for Mobile */}
           {thumbnail && (
             <div className="flex justify-center mb-6">
@@ -248,11 +353,35 @@ const BookDetail = () => {
               />
             </div>
           )}
+          
+          <div className="shelf flex flex-col text-center mt-4 ">
+            <button 
+              onClick={() => handleAddToShelf('wantToRead')} 
+              disabled={shelfLoadingStates.wantToRead}
+              className={`mx-auto w-40 font-semibold shadow-[0_0_.8rem] cursor-pointer shadow-gray-300 hover:shadow-gray-600 h-8 rounded-full text-white bg-[#d91c7d] ${shelfLoadingStates.wantToRead ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {shelfLoadingStates.wantToRead ? 'Adding...' : 'Want to read'}
+            </button>
+            <button 
+              className={`mx-auto cursor-pointer w-40 font-semibold shadow-[0_0_.8rem] shadow-gray-300 h-8 rounded-full text-white mt-2 bg-[#d91c7d] hover:shadow-gray-600 ${shelfLoadingStates.currentlyReading ? 'opacity-50 cursor-not-allowed' : ''}`} 
+              onClick={() => handleAddToShelf('currentlyReading')}
+              disabled={shelfLoadingStates.currentlyReading}
+            >
+              {shelfLoadingStates.currentlyReading ? 'Adding...' : 'Currently Reading'}
+            </button>
+            <button 
+              className={`cursor-pointer mx-auto w-40 font-semibold shadow-[0_0_.8rem] shadow-gray-300 h-8 mt-2 rounded-full text-white hover:shadow-gray-600 bg-[#d91c7d] ${shelfLoadingStates.finishedReading ? 'opacity-50 cursor-not-allowed' : ''}`}  
+              onClick={() => handleAddToShelf('finishedReading')}
+              disabled={shelfLoadingStates.finishedReading}
+            >
+              {shelfLoadingStates.finishedReading ? 'Adding...' : 'Finished Reading'}
+            </button>
+          </div>
 
           {/* Book Info for Mobile */}
-          <div className="space-y-4">
+          <div className="space-y-4 mt-4">
             <h1 className='text-3xl font-bold text-[#D91C7D] text-center'>{title}</h1>
-            <h2 className='text-xl text-gray-500 text-center'>{authors}</h2>
+            <h2 className='text-xl text-gray-500 text-center '>{authors}</h2>
 
             <p className='text-sm text-justify leading-relaxed'>{description}</p>
 
@@ -332,11 +461,9 @@ const BookDetail = () => {
                             <span key={i} className={i < review.rating ? 'text-[#d91c7d]' : 'text-gray-400'}>
                               <FontAwesomeIcon icon={faStar} className="text-xs" />
                             </span>
-
                           ))}
                           <span className='ml-2 text-sm text-gray-600'>({review.rating}/5)</span>
                         </div>
-                        
                       </div>
                       <p className="text-gray-800 leading-relaxed mt-4 mb-2 text-sm">
                         {truncateText(review.review, 40)}
@@ -358,12 +485,35 @@ const BookDetail = () => {
             <img
               src={thumbnail}
               alt={title}
-              className="w-[80%] m-auto mt-20 rounded-r-3xl shadow-2xl shadow-gray-500 transition-transform duration-500 ease-in-out hover:scale-102 hover:shadow-[0_10px_25px_rgba(0,0,0,0.3)]"
+              className="w-[75%] m-auto mt-16 rounded-r-3xl shadow-2xl shadow-gray-500 transition-transform duration-500 ease-in-out "
               onError={(e) => {
                 e.target.style.display = 'none';
               }}
             />
           )}
+          <div className="shelf flex flex-col text-center mt-4 ">
+            <button 
+              onClick={() => handleAddToShelf('wantToRead')} 
+              disabled={shelfLoadingStates.wantToRead}
+              className={`mx-auto w-40 font-semibold shadow-[0_0_.8rem] cursor-pointer shadow-gray-300 hover:shadow-gray-600 h-8 rounded-full text-white bg-[#d91c7d] ${shelfLoadingStates.wantToRead ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {shelfLoadingStates.wantToRead ? 'Adding...' : 'Want to read'}
+            </button>
+            <button 
+              className={`mx-auto cursor-pointer w-40 font-semibold shadow-[0_0_.8rem] shadow-gray-300 h-8 rounded-full text-white mt-2 bg-[#d91c7d] hover:shadow-gray-600 ${shelfLoadingStates.currentlyReading ? 'opacity-50 cursor-not-allowed' : ''}`}    
+              onClick={() => handleAddToShelf('currentlyReading')}
+              disabled={shelfLoadingStates.currentlyReading}
+            >
+              {shelfLoadingStates.currentlyReading ? 'Adding...' : 'Currently Reading'}
+            </button>
+            <button 
+              className={`cursor-pointer mx-auto w-40 font-semibold shadow-[0_0_.8rem] shadow-gray-300 h-8 mt-2 rounded-full text-white hover:shadow-gray-600 bg-[#d91c7d] ${shelfLoadingStates.finishedReading ? 'opacity-50 cursor-not-allowed' : ''}`}  
+              onClick={() => handleAddToShelf('finishedReading')}
+              disabled={shelfLoadingStates.finishedReading}
+            >
+              {shelfLoadingStates.finishedReading ? 'Adding...' : 'Finished Reading'}
+            </button>
+          </div>
         </div>
 
         {/* Right Content Area */}
@@ -450,7 +600,6 @@ const BookDetail = () => {
                             <span key={i} className={i < review.rating ? 'text-[#d91c7d]' : 'text-gray-400'}>
                               <FontAwesomeIcon icon={faStar} className="text-xs" />
                             </span>
-
                           ))}
                           <span className='ml-2 text-sm text-gray-600'>({review.rating}/5)</span>
                         </div>
@@ -466,6 +615,23 @@ const BookDetail = () => {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes slide-in-right {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        
+        .animate-slide-in-right {
+          animation: slide-in-right 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };

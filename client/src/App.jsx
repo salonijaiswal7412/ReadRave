@@ -8,6 +8,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import BookDetail from './pages/BookDetail';
 import Profile from './pages/Profile';
 import EditProfile from './components/EditProfile';
+import MyShelf from './pages/MyShelf';
 
 library.add(fas);
 
@@ -23,6 +24,7 @@ function App(){
       <Route path="/book/:id" element={<BookDetail />} />
       <Route path='/profile' element={<Profile/>}></Route>
       <Route path="/edit-profile" element={<EditProfile />} />
+      <Route path="/my-shelf" element={<MyShelf />} />
 
     </Routes>
 

@@ -299,8 +299,9 @@ function Profile() {
                     </div>
                     
                     <div className="shelf w-full lg:w-2/6 mx-0 lg:mx-4 p-4 shadow-[0_0_2rem] shadow-gray-500 h-auto lg:h-60 rounded-xl mb-4 lg:mb-0">
-                        <h1 className='text-[#d91c7d] font-bold tracking-wide uppercase text-center text-lg sm:text-xl lg:text-2xl my-2 lg:my-4'>Rave Report</h1>
-                        <div className="flex flex-col gap-2 lg:gap-3 text-sm mt-2 lg:mt-4 text-gray-700 mx-2 sm:mx-4 lg:mx-6">
+                        <h1 className='text-[#d91c7d] font-bold tracking-wide uppercase text-center text-lg sm:text-xl lg:text-2xl  lg:my-0'>Rave Report</h1>
+
+                        <div className="flex flex-col gap-2 lg:gap-3 text-sm mt-2 lg:mt-4 text-gray-700 mx-2 sm:mx-4 lg:mx-6 mb-4">
                             <div className="flex justify-between text-base sm:text-lg font-semibold items-center opacity-85">
                                 <span>📚 Want to Read</span>
                                 <span className="text-[#d91c7d] font-bold">{shelfStats.wantToRead}</span>
@@ -314,6 +315,10 @@ function Profile() {
                                 <span className="text-[#d91c7d] font-bold">{shelfStats.finishedReading}</span>
                             </div>
                         </div>
+                      
+                          <Link to="/my-shelf" className="w-full text-[#d91c7d] hover:text-pink-700 hover:underline mx-28 text-md font-semibold  tracking-wide "> View Full Shelf </Link>
+                    
+
                     </div>
                 </div>
 

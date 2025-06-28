@@ -9,6 +9,7 @@ const googleBooksRoutes = require('./routes/googleBookRoutes');
 const reviewRoutes=require('./routes/reviewRoutes');
 const path=require('path');
 const readListRoutes=require('./routes/readListRoutes');
+const chabotRoutes=require('./routes/chatbotRoutes');
 
 
 const app = express();
@@ -31,9 +32,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use("/api/users", userRoutes);
 app.use('/api/reviews',reviewRoutes);
 app.use('/api/reading-list',readListRoutes);
-
-
 app.use('/api/google-books', googleBooksRoutes);
+app.use('/api/chatbot',chabotRoutes);
 
 
 // Test route

@@ -101,6 +101,31 @@ const updateProfile = async (req, res) => {
   }
 };
 
+const addFavourite= async(req,res)=>{
+    const {userId,book}=req.body;
+
+    try{
+        const user=await User.findById(userId);
+
+        const alreadySaved=user.favourites.some(
+            (fav)=>fav.googleBookId===book.googleBookId
+        );
+
+        if(alreadySaved){
+            return res.status(200).json({message:'Book already in favourites'});
+        }
+
+        user.favourites.push(book);
+        await user.save();
+
+        res.status(200).json({message:'Book added to favourites'});
+    }
+    catch(error){
+        console.error('Adding error: ',error);
+        res.status(500).json({message:'Internal server error'});
+    }
+};
+
 
 module.exports = { signupUser, loginUser, getProfile, updateProfilePicture ,updateProfile
-};
+,addFavourite};

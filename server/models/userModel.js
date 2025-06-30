@@ -2,6 +2,19 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 
+
+const favoriteSchema = new mongoose.Schema({
+  googleBookId: String,
+  title: String,
+  author: String,
+  thumbnail: String,
+  description: String,
+  genre: String, // optional
+  addedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 const userSchema = mongoose.Schema({
     name: {
         type: String,
@@ -29,10 +42,7 @@ const userSchema = mongoose.Schema({
         maxlength:200,
         default:'',
     },
-    favourites:{
-        type:[String],
-        default:[],
-    }
+    favourites:[favoriteSchema],
 
 });
 

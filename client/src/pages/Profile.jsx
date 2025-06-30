@@ -44,6 +44,7 @@ function Profile() {
     const [editingReview, setEditingReview] = useState(null);
     const [editFormData, setEditFormData] = useState({ rating: 0, review: '' });
     const [toast, setToast] = useState(null);
+    const [favourites,setFavourites]=useState([]);
 
     const [shelfStats, setSelfStats] = useState({
         wantToRead: 0,
@@ -71,6 +72,7 @@ function Profile() {
                     },
                 });
                 setUser(res.data.user);
+                setFavourites(res.data.user.favourites);
             } catch (error) {
                 console.error('Failed to fetch profile:', error.message);
             }
@@ -297,7 +299,7 @@ function Profile() {
                             )}
                         </div>
                     </div>
-                    
+
                     <div className="shelf w-full lg:w-2/6 mx-0 lg:mx-4 p-4 shadow-[0_0_2rem] shadow-gray-500 h-auto lg:h-60 rounded-xl mb-4 lg:mb-0">
                         <h1 className='text-[#d91c7d] font-bold tracking-wide uppercase text-center text-lg sm:text-xl lg:text-2xl  lg:my-0'>Rave Report</h1>
 
@@ -315,9 +317,9 @@ function Profile() {
                                 <span className="text-[#d91c7d] font-bold">{shelfStats.finishedReading}</span>
                             </div>
                         </div>
-                      
-                          <Link to="/my-shelf" className="w-full text-[#d91c7d] hover:text-pink-700 hover:underline mx-28 text-md font-semibold  tracking-wide "> View Full Shelf </Link>
-                    
+
+                        <Link to="/my-shelf" className="w-full text-[#d91c7d] hover:text-pink-700 hover:underline mx-28 text-md font-semibold  tracking-wide "> View Full Shelf </Link>
+
 
                     </div>
                 </div>
@@ -475,6 +477,26 @@ function Profile() {
                             overflow: hidden;
                         }
                     `}</style>
+                </div>
+                {/* Favourites section */}
+                <div className='w-full bg-white shadow-[0_0_1rem] shadow-gray-300 min-h-30 my-4 p-3 sm:p-4 rounded-xl mb-10'>
+                    <h2 className="text-xl sm:text-2xl font-bold text-[#D91C7D]">My Favourites</h2>
+                    {favourites.length===0 ? (
+                        <p className='mt-2 text-gray-600'>You haven't added any books to your favourites!!</p>
+                    ):(
+                        <div className='flex mt-2'>
+                            {favourites.map((book)=>(
+                                <div className='w-[30%] p-2 shadow-[0_0_0.5rem] shadow-gray-300  rounded-md'>
+                                   <div className='w-[90%] m-auto h-42 bg-gray-400 rounded-lg overflow-hidden'> <img src={book.thumbnail||'https://via.placeholder.com/150'} alt={book.title} className='object-cover '></img></div>
+                                   {console.log(book.thumbnail)}
+                                   <h3 className='text-md text-[#d91c7d] font-semibold mt-2 text-center'>{book.title}</h3>
+                                   <p className='text-sm text-gray-600 text-center'>{book.author}</p>
+
+                                </div>
+                            ))}
+                        </div>
+
+                    )}
                 </div>
             </div>
         </div>

@@ -101,31 +101,70 @@ const updateProfile = async (req, res) => {
   }
 };
 
-const addFavourite= async(req,res)=>{
-    const {userId,book}=req.body;
+const addFavourite = async (req, res) => {
+    try {
+        // Comprehensive debugging
+       
+        
+        if (!req.user) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
 
-    try{
-        const user=await User.findById(userId);
+        const userId = req.user._id;
+        const { book } = req.body;
 
-        const alreadySaved=user.favourites.some(
-            (fav)=>fav.googleBookId===book.googleBookId
+        if (!book) {
+            return res.status(400).json({ message: 'Book data is required' });
+        }
+
+        console.log('Searching for user with ID:', userId);
+        
+        // Try to find user again
+        const user = await User.findById(userId);
+    
+        
+        if (!user) {
+            
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+       
+
+        const alreadySaved = user.favourites.some(
+            (fav) => fav.googleBookId === book.googleBookId
         );
 
-        if(alreadySaved){
-            return res.status(200).json({message:'Book already in favourites'});
+        if (alreadySaved) {
+            return res.status(409).json({ message: 'Book already in favourites' });
         }
 
         user.favourites.push(book);
         await user.save();
 
-        res.status(200).json({message:'Book added to favourites'});
+        res.status(200).json({ message: 'Book added to favourites' });
+        
+    } catch (error) {
+       
+        res.status(500).json({ message: 'Internal server error' });
     }
-    catch(error){
-        console.error('Adding error: ',error);
-        res.status(500).json({message:'Internal server error'});
-    }
+};
+
+const removeFavourite=async (req,res)=>{
+const userId=req.user.id;
+const bookId=req.params.bookId;
+try{
+    const user=await User.findById(userId);
+    user.favourites=user.favourites.filter((book)=>book.googleBookId!=bookId);
+
+    await user.save();
+    res.status(200).json({ message: 'Book removed from favourites' });
+}
+catch(err){
+    console.error('Error removing favourite:', err);
+    res.status(500).json({ message: 'Failed to remove favourite' });
+}
 };
 
 
 module.exports = { signupUser, loginUser, getProfile, updateProfilePicture ,updateProfile
-,addFavourite};
+,addFavourite,removeFavourite};

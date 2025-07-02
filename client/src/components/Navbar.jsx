@@ -99,7 +99,7 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 w-full z-10 flex items-center justify-between px-4 py-2 bg-white shadow-md h-12 pl-0">
       {/* Left - Logo and Nav Links */}
       <div className="flex items-center">
-        <img id="img-logo" src={logo} alt="ReadRave Logo" className="w-24 h-full mr-6" />
+       <Link to='/'><img id="img-logo" src={logo} alt="ReadRave Logo" className="w-24 h-full mr-6" /></Link> 
         <div className="flex space-x-6">
           <button className="text-gray-600 font-semibold text-lg hover:text-[#2A92C9] hidden sm:block">Browse</button>
           <button className="text-gray-600 font-semibold text-lg hover:text-[#2A92C9] hidden sm:block">Community</button>

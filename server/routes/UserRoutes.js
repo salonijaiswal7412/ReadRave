@@ -1,7 +1,7 @@
 const express=require('express');
 const router=express.Router();
 const User=require('../models/userModel');
-const {signupUser,loginUser,getProfile,updateProfilePicture,updateProfile,addFavourite} =require('../controllers/userContoller');
+const {signupUser,loginUser,getProfile,updateProfilePicture,updateProfile,addFavourite,removeFavourite} =require('../controllers/userContoller');
 const upload=require('../middlewares/uploadMiddleware');
 const protect=require('../middlewares/authMiddleware');
 
@@ -16,7 +16,8 @@ router.put('/profile-picture',protect,upload.single('profilePic'),updateProfileP
 
 router.patch('/profile', protect, upload.single('profilePic'), updateProfile);
 
-router.post('/favourites',addFavourite);
+router.post('/favourites',protect,addFavourite);
+router.delete('/favourites/:bookId',protect,removeFavourite);
 
 
 module.exports=router;

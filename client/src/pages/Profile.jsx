@@ -44,7 +44,7 @@ function Profile() {
     const [editingReview, setEditingReview] = useState(null);
     const [editFormData, setEditFormData] = useState({ rating: 0, review: '' });
     const [toast, setToast] = useState(null);
-    const [favourites,setFavourites]=useState([]);
+    const [favourites, setFavourites] = useState([]);
 
     const [shelfStats, setSelfStats] = useState({
         wantToRead: 0,
@@ -186,6 +186,38 @@ function Profile() {
         });
     };
 
+    const handleRemoveFav = async (book) => {
+    try {
+        // Use the correct ID field that matches your backend
+        const bookId = book.googleBookId || book.id || book._id;
+        
+        console.log('Removing book:', bookId); // Debug log
+        
+        if (!bookId) {
+            showToast('Error: Book ID not found', 'error');
+            return;
+        }
+        
+        const response = await axios.delete(`http://localhost:5000/api/users/favourites/${bookId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        
+        // Update the local favourites state by removing the book
+        setFavourites(prevFavourites => 
+            prevFavourites.filter(fav => 
+                fav.googleBookId !== bookId && 
+                fav.id !== bookId && 
+                fav._id !== bookId
+            )
+        );
+        
+        showToast('Removed from favourites', 'success');
+        
+    } catch (error) {
+        console.error('Error removing from favourites:', error);
+        showToast('Failed to remove from favourites', 'error');
+    }
+};
     // Handler for updating a review
     const handleUpdateReview = async (e) => {
         e.preventDefault();
@@ -478,26 +510,36 @@ function Profile() {
                         }
                     `}</style>
                 </div>
+
                 {/* Favourites section */}
-                <div className='w-full bg-white shadow-[0_0_1rem] shadow-gray-300 min-h-30 my-4 p-3 sm:p-4 rounded-xl mb-10'>
-                    <h2 className="text-xl sm:text-2xl font-bold text-[#D91C7D]">My Favourites</h2>
-                    {favourites.length===0 ? (
-                        <p className='mt-2 text-gray-600'>You haven't added any books to your favourites!!</p>
-                    ):(
-                        <div className='flex mt-2'>
-                            {favourites.map((book)=>(
-                                <div className='w-[30%] p-2 shadow-[0_0_0.5rem] shadow-gray-300  rounded-md'>
-                                   <div className='w-[90%] m-auto h-42 bg-gray-400 rounded-lg overflow-hidden'> <img src={book.thumbnail||'https://via.placeholder.com/150'} alt={book.title} className='object-cover '></img></div>
-                                   {console.log(book.thumbnail)}
-                                   <h3 className='text-md text-[#d91c7d] font-semibold mt-2 text-center'>{book.title}</h3>
-                                   <p className='text-sm text-gray-600 text-center'>{book.author}</p>
-
-                                </div>
-                            ))}
-                        </div>
-
-                    )}
+               <div className='w-full bg-white shadow-[0_0_1rem] shadow-gray-300 min-h-30 my-4 p-3 sm:p-4 rounded-xl mb-10'>
+    <h2 className="text-xl sm:text-2xl font-bold text-[#D91C7D]">My Favourites</h2>
+    {favourites.length === 0 ? (
+        <p className='mt-2 text-gray-600'>You haven't added any books to your favourites!!</p>
+    ) : (
+        <div className='flex flex-wrap gap-4 mt-2'>
+            {favourites.map((book, index) => (
+                <div key={book.googleBookId || book.id || book._id || index} className='w-40 p-2 shadow-[0_0_0.5rem] shadow-gray-300 rounded-md relative'>
+                    <div className='w-[90%] m-auto h-42 bg-gray-400 rounded-lg overflow-hidden'>
+                        <img
+                            src={book.thumbnail && book.thumbnail.startsWith('http') ? book.thumbnail : 'https://via.placeholder.com/150x220?text=No+Image'}
+                            alt={book.title}
+                            className='object-cover w-full h-full'
+                        />
+                    </div>
+                    <h3 className='text-md text-[#d91c7d] font-semibold mt-2 text-center line-clamp-2'>{book.title}</h3>
+                    <p className='text-sm text-gray-600 text-center line-clamp-1'>{book.author}</p>
+                    <button 
+                        className='w-full mt-2 px-2 py-1  text-red-600 text-xs rounded hover:underline transition duration-200'
+                        onClick={() => handleRemoveFav(book)}
+                    >
+                        Remove
+                    </button>
                 </div>
+            ))}
+        </div>
+    )}
+</div>
             </div>
         </div>
     );

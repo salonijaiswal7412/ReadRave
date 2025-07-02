@@ -4,7 +4,8 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import ReviewForm from '../components/ReviewForm';
 import AuthContext from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faCheck, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faStar, faCheck, faExclamationTriangle,faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import axios from 'axios';
 
 // Toast Component
@@ -48,6 +49,8 @@ const BookDetail = () => {
   const [error, setError] = useState(null);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [selectedReview, setSelectedReview] = useState(null);
+  const [isFav, setIsFav] = useState(false);
+  const [favLoading, setFavLoading] = useState(false);
   
   // Individual loading states for each shelf button
   const [shelfLoadingStates, setShelfLoadingStates] = useState({
@@ -97,6 +100,30 @@ const BookDetail = () => {
       document.removeEventListener('click', handleClickOutside);
     };
   }, [selectedReview]);
+
+  //check favourites
+   const checkFavourite = async () => {
+    if (!isAuthenticated || !token || !user) {
+      setIsFav(false);
+      return;
+    }
+
+    try {
+      const res = await axios.get('http://localhost:5000/api/users/profile', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (res.data.user && res.data.user.favourites) {
+        const fav = res.data.user.favourites.some(
+          (fav) => fav.googleBookId === id
+        );
+        setIsFav(fav);
+      }
+    } catch (err) {
+      console.error('Error checking favourites:', err);
+      setIsFav(false);
+    }
+  };
 
   // Fetch reviews function
   const fetchReviews = async () => {
@@ -149,7 +176,15 @@ const BookDetail = () => {
 
     // Fetch reviews
     fetchReviews();
+    
   }, [id]);
+
+   // Check favorites when authentication state changes
+  useEffect(() => {
+    if (!authLoading) {
+      checkFavourite();
+    }
+  }, [isAuthenticated, user, authLoading, id]);
 
   // Updated handleAddToShelf function with individual loading states
   const handleAddToShelf = async (status) => {
@@ -200,6 +235,71 @@ const BookDetail = () => {
       setShelfLoadingStates(prev => ({ ...prev, [status]: false }));
     }
   };
+
+  const handleToggleFavourite = async () => {
+    if (!isAuthenticated || !token) {
+      showToast('Please login to manage favourites', 'error');
+      handleLoginRedirect();
+      return;
+    }
+
+    if (!book) {
+      showToast('Book data not loaded', 'error');
+      return;
+    }
+
+    setFavLoading(true);
+
+    try {
+      const title = book.volumeInfo?.title || 'Unknown Title';
+      const authors = book.volumeInfo?.authors?.join(', ') || 'Unknown Author';
+      const thumbnail = book.volumeInfo?.imageLinks?.thumbnail || '';
+      const cleanDescription = (desc) => {
+        if (!desc) return 'No description available';
+        return desc.replace(/<[^>]*>/g, '');
+      };
+      const description = cleanDescription(book.volumeInfo?.description);
+
+      if (isFav) {
+        // Remove from favourites
+        await axios.delete(`http://localhost:5000/api/users/favourites/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        showToast('Removed from favourites', 'success');
+        setIsFav(false);
+      } else {
+        // Add to favourites
+        await axios.post(
+          'http://localhost:5000/api/users/favourites',
+          {
+            userId: user._id,
+            book: {
+              googleBookId: id,
+              title: title,
+              author: authors,
+              thumbnail: thumbnail,
+              description: description,
+            },
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        showToast('Added to favourites', 'success');
+        setIsFav(true);
+      }
+    } catch (err) {
+      console.error('Favourite toggle error:', err);
+      if (err.response?.data?.message) {
+        showToast(err.response.data.message, 'error');
+      } else {
+        showToast('Failed to update favourites', 'error');
+      }
+    } finally {
+      setFavLoading(false);
+    }
+  };
+
 
   // Handle review submission callback
   const handleReviewSubmitted = () => {
@@ -380,7 +480,25 @@ const BookDetail = () => {
 
           {/* Book Info for Mobile */}
           <div className="space-y-4 mt-4">
-            <h1 className='text-3xl font-bold text-[#D91C7D] text-center'>{title}</h1>
+           <div className='flex flex-col justify-between items-center gap-4'>
+              <h1 className='text-center text-3xl font-bold text-[#D91C7D] flex-1 pr-4'>{title}</h1>
+              {/* Favorite Button for Mobile */}
+              <div className="flex-shrink-0">
+                <button 
+                  onClick={handleToggleFavourite}
+                  disabled={favLoading}
+                  className={`${favLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <FontAwesomeIcon
+                    icon={isFav ? faHeart : faHeartRegular}
+                    className={`text-2xl cursor-pointer transition duration-300 ${
+                      isFav ? 'text-red-500' : 'text-[#d91c7d]'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+            
             <h2 className='text-xl text-gray-500 text-center '>{authors}</h2>
 
             <p className='text-sm text-justify leading-relaxed'>{description}</p>
@@ -519,7 +637,25 @@ const BookDetail = () => {
         {/* Right Content Area */}
         <div className="right ml-[25%] w-3/4 h-[calc(100vh-1rem)] overflow-y-auto pr-4 pl-5 pt-10">
           <div className="p-4">
-            <h1 className='text-5xl font-bold text-[#D91C7D] w-5/6'>{title}</h1>
+             <div className='flex justify-between'>
+              <h1 className='text-5xl font-bold text-[#D91C7D] w-5/6'>{title}</h1>
+              <div className=" ">
+                <button 
+                  onClick={handleToggleFavourite}
+                  disabled={favLoading}
+                  className={`${favLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <FontAwesomeIcon
+                    icon={isFav ? faHeart : faHeartRegular}
+                    className={`text-3xl cursor-pointer transition duration-300 ${
+                      isFav ? 'text-red-500' : 'text-[#d91c7d]'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
+              
             <h2 className='leading-loose text-2xl text-gray-500'>{authors}</h2>
 
             <p className='mt-4 text-sm w-5/6 text-justify'>{description}</p>

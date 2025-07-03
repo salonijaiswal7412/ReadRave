@@ -103,7 +103,7 @@ const updateProfile = async (req, res) => {
 
 const addFavourite = async (req, res) => {
     try {
-        // Comprehensive debugging
+        
        
         
         if (!req.user) {
@@ -117,7 +117,7 @@ const addFavourite = async (req, res) => {
             return res.status(400).json({ message: 'Book data is required' });
         }
 
-        console.log('Searching for user with ID:', userId);
+        
         
         // Try to find user again
         const user = await User.findById(userId);

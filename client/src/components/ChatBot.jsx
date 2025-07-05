@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import Navbar from './Navbar';
 
 
 
@@ -243,8 +244,9 @@ const ChatBot = () => {
 
   return (
     <div className=" mx-auto p-4 w-[80%]  mt-6">
+      <Navbar/>
    
-      <div className="bg-white rounded-xl overflow-hidden shadow-[0_0_1rem] shadow-gray-400 border border-pink-200">
+      <div className="mt-6 bg-white rounded-xl overflow-hidden shadow-[0_0_1rem] shadow-gray-400 border border-pink-200">
         {/* Header */}
         <div className="bg-[#d91c7d] text-white p-4 rounded-t-lg">
           <div className="flex items-center space-x-3">

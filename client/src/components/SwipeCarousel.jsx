@@ -16,7 +16,7 @@ import slide_image_6 from '../assets/images/image6.png';
 
 function SwipeCarousel() {
   return (
-    <div className="flex flex-col items-center justify-center bg-gray-50 min-h-screen mt-0 px-4">
+    <div className="flex flex-col items-center justify-center bg-gray-50 h-full mt-0 px-4">
       <div className="w-full sm:w-5/6 md:w-3/4 lg:w-2/3 max-w-2xl">
         <Swiper
           effect={'coverflow'}

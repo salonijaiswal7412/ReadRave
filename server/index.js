@@ -10,6 +10,8 @@ const reviewRoutes=require('./routes/reviewRoutes');
 const path=require('path');
 const readListRoutes=require('./routes/readListRoutes');
 const chabotRoutes=require('./routes/chatbotRoutes');
+const genreRoutes = require('./routes/genreRoutes');
+
 
 
 const app = express();
@@ -34,6 +36,7 @@ app.use('/api/reviews',reviewRoutes);
 app.use('/api/reading-list',readListRoutes);
 app.use('/api/google-books', googleBooksRoutes);
 app.use('/api/chatbot',chabotRoutes);
+app.use('/api/genres', genreRoutes);
 
 
 // Test route

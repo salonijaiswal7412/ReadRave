@@ -10,6 +10,8 @@ import Profile from './pages/Profile';
 import EditProfile from './components/EditProfile';
 import MyShelf from './pages/MyShelf';
 import ChatBot from './components/ChatBot';
+import Explore from './pages/Explore';
+import GenrePage from './pages/GenrePage';
 
 library.add(fas);
 
@@ -27,6 +29,8 @@ function App(){
       <Route path="/edit-profile" element={<EditProfile />} />
       <Route path="/my-shelf" element={<MyShelf />} />
       <Route path="/chatbot" element={<ChatBot/>}/>
+       <Route path="/explore" element={<Explore />} />
+       <Route path='/genre/:genreName' element={<GenrePage/>}/>
 
     </Routes>
 

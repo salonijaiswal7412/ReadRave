@@ -8,6 +8,7 @@ import Carousel from '../components/Carousel'
 import { useLocoScroll } from '../hooks/useLocoScroll'
 import Genres from '../components/Genres'
 import FooterMain from '../components/FooterMain'
+import ChatbotBanner from '../components/ChatbotBanner'
 
 
 function Home() {
@@ -26,6 +27,7 @@ function Home() {
       <Hero />
       <Carousel />
       <Genres/>
+      <ChatbotBanner/>
       <Image />
       <FooterMain/>
       

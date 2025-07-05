@@ -101,8 +101,8 @@ const Navbar = () => {
       <div className="flex items-center">
        <Link to='/'><img id="img-logo" src={logo} alt="ReadRave Logo" className="w-24 h-full mr-6" /></Link> 
         <div className="flex space-x-6">
-          <button className="text-gray-600 font-semibold text-lg hover:text-[#2A92C9] hidden sm:block">Browse</button>
-          <button className="text-gray-600 font-semibold text-lg hover:text-[#2A92C9] hidden sm:block">Community</button>
+         <Link to='/explore'> <button className="text-gray-600 font-semibold text-lg hover:text-[#2A92C9] hidden sm:block">Explore</button></Link>
+          {/* <button className="text-gray-600 font-semibold text-lg hover:text-[#2A92C9] hidden sm:block">Community</button> */}
         </div>
       </div>
       

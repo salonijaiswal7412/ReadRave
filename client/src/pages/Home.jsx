@@ -4,8 +4,10 @@ import Hero from '../components/Hero'
 import Image from '../components/Image'
 import Carousel from '../components/Carousel'
 
+
 import { useLocoScroll } from '../hooks/useLocoScroll'
 import Genres from '../components/Genres'
+import FooterMain from '../components/FooterMain'
 
 
 function Home() {
@@ -25,6 +27,7 @@ function Home() {
       <Carousel />
       <Genres/>
       <Image />
+      <FooterMain/>
       
     </div>
   );

@@ -7,8 +7,8 @@ const Genres = () => {
     useLocoScroll(true);
     
     return (
-        <div>
-            <div data-scroll-section className="w-screen min-h-screen bg-white p-4 md:p-8 flex flex-col lg:flex-row items-center justify-center">
+        <div >
+            <div data-scroll-section className="w-screen h-[90vh] bg-white p-4 md:p-8 flex flex-col lg:flex-row items-center justify-center ">
                 <div className="left w-full lg:w-1/2 h-full bg-white flex flex-col justify-center items-center mb-8 lg:mb-0">
                     <h1 
                         data-scroll 

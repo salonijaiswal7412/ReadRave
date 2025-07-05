@@ -7,7 +7,7 @@ const Image = () => {
     useLocoScroll(true);
   return (
     <div>
-      <div data-scroll-section className="w-screen h-screen p-8 bg-white">
+      <div data-scroll-section className="w-screen h-[100vh] p-8 bg-white ">
         <img src={device} alt="" className='m-auto' />
       </div>
     </div>

@@ -3,8 +3,10 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import background_img from '../assets/images/background.png';
 import device_hero from '../assets/images/device_hero.png';
+import { useLocoScroll } from '../hooks/useLocoScroll'
 
 const Hero = () => {
+  useLocoScroll(true);
   useGSAP(() => {
     gsap.from('.heading', {
       opacity: 0,
@@ -15,7 +17,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <div className="w-full mt-8 lg:mt-12">
+    <div  className="w-full mt-8 lg:mt-12">
       <div
         className="w-full h-1/2 md:h-1/2  lg:h-screen max-h-screen overflow-hidden bg-cover bg-center bg-[#d91c7d] flex flex-col md:flex-row items-center justify-between px-4  md:px-10"
         style={{ backgroundImage: `url(${background_img})` }}

@@ -118,7 +118,7 @@ export default function Signup() {
         {/* Right side - Signup Form */}
         <div className="w-full md:w-1/2 flex-col items-center justify-center px-8 py-4 bg-white">
           <div className="logo block logo-animation">
-            <img src={Logo} alt="logo" className='w-1/4' />
+            <Link to='/'><img src={Logo} alt="logo" className='w-1/4' /></Link>
           </div>
           <div className="w-full max-w-md space-y-6">
             <div className="text-left">

@@ -99,7 +99,7 @@ export default function Login() {
         {/* Left side - Login Form */}
         <div className="w-full md:w-1/2 flex flex-col items-start justify-center px-8 py-4 bg-white">
           <div className="logo mb-6">
-            <img src={Logo} alt="logo" className="w-1/4" />
+            <Link to='/'><img src={Logo} alt="logo" className="w-1/4" /></Link>
           </div>
 
           <div className="w-full max-w-md space-y-6">

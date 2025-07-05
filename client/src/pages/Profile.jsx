@@ -326,7 +326,7 @@ function Profile() {
                     <div className="flex flex-col lg:flex-row gap-4 lg:gap-0">
                         <div className="profile bg-[#d91c7d] shadow-[0_0_2rem] shadow-gray-500 p-4 sm:p-6 h-auto lg:h-60 rounded-xl mb-4 lg:mb-8 flex flex-col sm:flex-row w-full lg:w-4/6">
                             <div className="p-dets flex-1 pr-0 sm:pr-6 mb-4 sm:mb-0">
-                                <h1 className='font-semibold text-xl sm:text-2xl lg:text-3xl text-pink-300'>Welcome back ReadRaver,</h1>
+                                <h1 className='font-semibold text-xl sm:text-2xl lg:text-3xl text-pink-300'>Welcome ReadRaver,</h1>
                                 <h1 className='text-2xl sm:text-3xl lg:text-5xl font-bold tracking-wide text-white uppercase mt-2'>{user.name || 'User'}!</h1>
 
                                 {user.bio ? (

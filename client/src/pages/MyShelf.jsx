@@ -4,6 +4,7 @@ import AuthContext from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 import BookCard from '../components/BookCard';
+import CommonFooter from '../components/CommonFooter';
 
 function MyShelf() {
 
@@ -108,12 +109,13 @@ function MyShelf() {
   return (
     <div>
         <Navbar/>
-        <div className='py-12 bg-[#d91c7d] min-h-screen w-full '>
-        <h1 className='text-5xl text-center uppercase font-bold text-white my-6 tracking-tight '>My Reading Shelf</h1>
+        <div className='py-12 bg-[#f2d8e5] min-h-screen w-full '>
+        <h1 className='text-5xl text-center uppercase font-bold text-[#d91c7d] my-6 tracking-tight '>My Reading Shelf</h1>
         {renderShelf("Want to Read","wantToRead")}
         {renderShelf("Currently Reading","currentlyReading")}
         {renderShelf("Finished Reading","finishedReading")}
         </div>
+        <CommonFooter/>
       
     </div>
   )

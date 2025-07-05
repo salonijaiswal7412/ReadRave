@@ -99,7 +99,8 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 w-full z-10 flex items-center justify-between px-4 py-2 bg-white shadow-md h-12 pl-0">
       {/* Left - Logo and Nav Links */}
       <div className="flex items-center">
-       <Link to='/'><img id="img-logo" src={logo} alt="ReadRave Logo" className="w-24 h-full mr-6" /></Link> 
+       <Link to='/'><img id="img-logo" src={logo} alt="ReadRave Logo" className="w-24 h-full " /></Link> 
+       <div className='w-8 h-8 bg-[#d91c7d] p-1 cursor-pointer rounded-full mx-4'><Link to='/chatbot'className='' >🤖</Link></div>
         <div className="flex space-x-6">
          <Link to='/explore'> <button className="text-gray-600 font-semibold text-lg hover:text-[#2A92C9] hidden sm:block">Explore</button></Link>
           {/* <button className="text-gray-600 font-semibold text-lg hover:text-[#2A92C9] hidden sm:block">Community</button> */}

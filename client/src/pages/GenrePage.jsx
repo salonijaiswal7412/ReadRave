@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
+import CommonFooter from '../components/CommonFooter';
 
 const GenrePage = () => {
   const { genreName } = useParams();
@@ -37,7 +38,7 @@ const GenrePage = () => {
           {genreName} Books
         </h1>
 
-        {loading && <p className="text-center text-gray-600">Loading...</p>}
+        {loading && <p className="text-center text-gray-600 h-[70vh]">Loading...</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
@@ -63,7 +64,9 @@ const GenrePage = () => {
           ))}
         </div>
       </div>
+      <CommonFooter/>
     </div>
+    
   );
 };
 

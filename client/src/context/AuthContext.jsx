@@ -64,6 +64,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
     localStorage.removeItem('redirectAfterLogin');
+    
   }, []);
 
   // Check token validity and auto-logout if expired

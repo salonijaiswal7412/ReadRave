@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faCheck, faExclamationTriangle,faHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import axios from 'axios';
+import CommonFooter from '../components/CommonFooter';
 
 // Toast Component
 const Toast = ({ message, type = 'success', onClose }) => {
@@ -749,7 +750,9 @@ const BookDetail = () => {
               )}
             </div>
           </div>
+          
         </div>
+       
       </div>
 
       <style jsx>{`
@@ -768,6 +771,7 @@ const BookDetail = () => {
           animation: slide-in-right 0.3s ease-out;
         }
       `}</style>
+      
     </div>
   );
 };

@@ -14,9 +14,9 @@ function Carousel() {
             <div
                 data-scroll-section
                 data-scroll-speed="1.1"
-                className="w-screen min-h-screen bg-white p-4 md:p-8 flex flex-col lg:flex-row items-center justify-center"
+                className="w-screen max-h-screen bg-white p-4 md:p-8 flex flex-col lg:flex-row items-center justify-center"
             >
-                <div className="left w-full lg:w-1/2 h-full mb-8 lg:mb-0 px-4 lg:px-0">
+                <div className="left w-full lg:w-1/2 h-full mb-8 lg:mb-0 px-4 lg:px-0 ">
                     <img 
                         src={bg} 
                         className="rounded-lg shadow-[0_0_2rem] shadow-gray-600 w-full h-64 sm:h-80 md:h-96 lg:h-full object-cover max-h-[500px] lg:max-h-none" 

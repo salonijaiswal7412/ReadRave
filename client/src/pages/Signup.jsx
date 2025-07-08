@@ -7,6 +7,7 @@ import AuthContext from '../context/AuthContext';
 
 import signupBanner from '../assets/images/signup-banner.png';
 import Logo from '../assets/images/logo.png';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 //import './CSS/signup-animation.css'; // Import the new CSS file
 
 export default function Signup() {
@@ -45,7 +46,7 @@ export default function Signup() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/users/signup', formData);
+      const response = await axios.post(`${VITE_API_BASE_URL}/api/users/signup`, formData);
       login(response.data.token);
       navigate('/profile');
     } catch (err) {

@@ -3,8 +3,17 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { useNavigate, Link } from 'react-router-dom';
 import CommonFooter from '../components/CommonFooter';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
-const genres = ['Romance', 'Mystery', 'Science Fiction', 'Fantasy', 'Self Help'];
+const genres = [ "Fantasy",
+  "Science Fiction",
+  "Romance",
+  "Thriller",
+  "Mystery",
+  "Historical Fiction",
+  "Memoirs",
+  "Horror",
+  "Literary Fiction"];
 
 const Explore = () => {
   const [booksByGenre, setBooksByGenre] = useState({});
@@ -15,7 +24,7 @@ const Explore = () => {
     genres.forEach(async (genre) => {
       setLoadingGenres((prev) => ({ ...prev, [genre]: true }));
       try {
-        const res = await axios.get('http://localhost:5000/api/genres', {
+        const res = await axios.get(`${VITE_API_BASE_URL}/api/genres`, {
           params: { genre },
         });
 

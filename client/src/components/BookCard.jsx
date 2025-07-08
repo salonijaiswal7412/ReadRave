@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import styles from '../styles/customSelect.module.css';
+import { Link } from 'react-router-dom';
 
-function BookCard({ entry, onStatusChange, onRemove }) {
+function BookCard({key, entry, onStatusChange, onRemove }) {
     const [info, setInfo] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
 
@@ -53,7 +54,7 @@ function BookCard({ entry, onStatusChange, onRemove }) {
                     alt="cover" 
                     className="rounded-r-xl shadow-[0_0_.5rem] shadow-gray-400 h-48 mx-auto mb-3" 
                 />
-                <h3 className="text-lg font-semibold text-[#d91c7d] text-center">{info.title}</h3>
+                <Link to={`/book/${entry.googleBookId}`}><h3 className="text-lg font-semibold text-[#d91c7d] text-center">{info.title}</h3></Link>
                 <p className="text-sm text-gray-600 text-center">{info.authors?.join(', ')}</p>
             </div>
 

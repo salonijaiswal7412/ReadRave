@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Navbar from './Navbar';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 
 
@@ -19,7 +20,7 @@ const ChatBot = () => {
 
   const startConversation = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/chatbot/start');
+      const response = await fetch(`${VITE_API_BASE_URL}/api/chatbot/start`);
       const data = await response.json();
       
       if (data.success) {
@@ -196,7 +197,7 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/chatbot/recommend', {
+      const response = await fetch(`${VITE_API_BASE_URL}/api/chatbot/recommend`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import CommonFooter from '../components/CommonFooter';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 const GenrePage = () => {
   const { genreName } = useParams();
@@ -14,7 +15,7 @@ const GenrePage = () => {
     const fetchBooks = async () => {
       setLoading(true);
       try {
-        const res = await axios.get('http://localhost:5000/api/genres', {
+        const res = await axios.get(`${VITE_API_BASE_URL}/api/genres`, {
           params: { genre: genreName },
         });
         setBooks(res.data);

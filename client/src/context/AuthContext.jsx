@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 const AuthContext = createContext();
 
@@ -28,7 +29,7 @@ export function AuthProvider({ children }) {
   // Function to fetch user profile data
   const fetchUserProfile = async (authToken) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/users/profile', {
+      const response = await axios.get(`${VITE_API_BASE_URL}/api/users/profile`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`

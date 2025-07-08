@@ -132,11 +132,11 @@ Based on this, recommend 3–5 books with title, author, and a short reason for 
       timestamp: new Date().toISOString()
     });
 
-  } catch (err) {
-    console.error('Chatbot error:', err);
-    res.status(500).json({
+  } catch (error) {
+    console.error("Chatbot error:", error);
+    res.status(503).json({
       success: false,
-      error: 'Failed to get book recommendations'
+      error: error.message || "Failed to get recommendations. Please try again later.",
     });
   }
 };

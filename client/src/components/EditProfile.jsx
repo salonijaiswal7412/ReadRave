@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 const EditProfile = ({ userData, closeModal, onProfileUpdate }) => {
   const { token } = useContext(AuthContext);
@@ -21,7 +22,7 @@ const EditProfile = ({ userData, closeModal, onProfileUpdate }) => {
 
     try {
       setLoading(true);
-      const res = await axios.patch('http://localhost:5000/api/users/profile', formData, {
+      const res = await axios.patch(`${VITE_API_BASE_URL}/api/users/profile`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,

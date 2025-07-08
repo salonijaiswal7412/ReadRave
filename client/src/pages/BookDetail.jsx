@@ -8,6 +8,7 @@ import { faStar, faCheck, faExclamationTriangle,faHeart } from '@fortawesome/fre
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import axios from 'axios';
 import CommonFooter from '../components/CommonFooter';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 // Toast Component
 const Toast = ({ message, type = 'success', onClose }) => {
@@ -110,7 +111,7 @@ const BookDetail = () => {
     }
 
     try {
-      const res = await axios.get('http://localhost:5000/api/users/profile', {
+      const res = await axios.get(`${VITE_API_BASE_URL}/api/users/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -130,7 +131,7 @@ const BookDetail = () => {
   const fetchReviews = async () => {
     try {
       setReviewsLoading(true);
-      const response = await fetch(`http://localhost:5000/api/reviews/${id}`);
+      const response = await fetch(`${VITE_API_BASE_URL}/api/reviews/${id}`);
       if (response.ok) {
         const data = await response.json();
         console.log('Reviews data:', data);
@@ -201,7 +202,7 @@ const BookDetail = () => {
       setShelfLoadingStates(prev => ({ ...prev, [status]: true }));
       console.log('Adding to shelf:', { googleBookId: id, status, token: token ? 'exists' : 'missing' });
 
-      const response = await axios.post("http://localhost:5000/api/reading-list", {
+      const response = await axios.post(`${VITE_API_BASE_URL}/api/reading-list`, {
         googleBookId: id,
         status
       }, {
@@ -263,7 +264,7 @@ const BookDetail = () => {
 
       if (isFav) {
         // Remove from favourites
-        await axios.delete(`http://localhost:5000/api/users/favourites/${id}`, {
+        await axios.delete(`${VITE_API_BASE_URL}/api/users/favourites/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         showToast('Removed from favourites', 'success');
@@ -271,7 +272,7 @@ const BookDetail = () => {
       } else {
         // Add to favourites
         await axios.post(
-          'http://localhost:5000/api/users/favourites',
+          `${VITE_API_BASE_URL}/api/users/favourites`,
           {
             userId: user._id,
             book: {
@@ -554,7 +555,7 @@ const BookDetail = () => {
               <h2 className="text-2xl font-bold text-[#d91c7d] mb-4 m-4">User Reviews</h2>
 
               {reviewsLoading ? (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center ">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
                   <span className="text-gray-600">Loading reviews...</span>
                 </div>
@@ -564,14 +565,14 @@ const BookDetail = () => {
                   <p className="text-gray-400 text-sm mt-2">Be the first to review this book!</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   {reviews.map((review, index) => (
                     <div
                       key={review._id || review.id || index}
                       className="bg-gray-50 shadow-[0_0_1rem] shadow-gray-300 rounded-lg p-4 h-40 cursor-pointer transition-all duration-500 hover:shadow-gray-500 hover:shadow-[0_0_1rem]"
                       onClick={(e) => handleReviewClick(review, e)}
                     >
-                      <div className="items-center justify-between mb-2">
+                      <div className="items-center justify-between mb-2 ">
                         <p className="font-semibold text-lg underline text-[#D91C7D] truncate">
                           {review.userId?.name || review.userName || 'Anonymous'}
                         </p>
@@ -584,8 +585,8 @@ const BookDetail = () => {
                           <span className='ml-2 text-sm text-gray-600'>({review.rating}/5)</span>
                         </div>
                       </div>
-                      <p className="text-gray-800 leading-relaxed mt-4 mb-2 text-sm">
-                        {truncateText(review.review, 40)}
+                      <p className="text-gray-800 leading-relaxed mt-4 mb-2 text-sm ">
+                        {truncateText(review.review, 45)}
                       </p>
                     </div>
                   ))}

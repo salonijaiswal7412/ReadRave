@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import CommonFooter from '../components/CommonFooter';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 // Toast Component
 const Toast = ({ message, type, onClose }) => {
@@ -93,7 +94,7 @@ function Profile() {
             if (!token) return;
 
             try {
-                const res = await axios.get('http://localhost:5000/api/users/profile', {
+                const res = await axios.get(`${VITE_API_BASE_URL}/api/users/profile`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -110,7 +111,7 @@ function Profile() {
             if (!token) return;
 
             try {
-                const res = await axios.get("http://localhost:5000/api/reviews/user", {
+                const res = await axios.get(`${VITE_API_BASE_URL}/api/reviews/user`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -134,7 +135,7 @@ function Profile() {
             if (!token) return;
 
             try {
-                const res = await axios.get("http://localhost:5000/api/reading-list", {
+                const res = await axios.get(`${VITE_API_BASE_URL}/api/reading-list`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -179,7 +180,7 @@ function Profile() {
         }
 
         try {
-            await axios.delete(`http://localhost:5000/api/reviews/${reviewId}`, {
+            await axios.delete(`${VITE_API_BASE_URL}/api/reviews/${reviewId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -215,7 +216,7 @@ function Profile() {
                 return;
             }
 
-            const response = await axios.delete(`http://localhost:5000/api/users/favourites/${bookId}`, {
+            const response = await axios.delete(`${VITE_API_BASE_URL}/api/users/favourites/${bookId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -247,7 +248,7 @@ function Profile() {
 
         try {
             const response = await axios.put(
-                `http://localhost:5000/api/reviews/${editingReview}`,
+                `${VITE_API_BASE_URL}/api/reviews/${editingReview}`,
                 {
                     rating: editFormData.rating,
                     review: editFormData.review
@@ -358,7 +359,7 @@ function Profile() {
                             <div className="p-pic flex-shrink-0 flex justify-center sm:justify-end">
                                 {user.profilePic ? (
                                     <img
-                                        src={`http://localhost:5000${user.profilePic}`}
+                                        src={`${VITE_API_BASE_URL}${user.profilePic}`}
                                         alt="Profile"
                                         className='w-32 h-32 sm:w-40 sm:h-40 lg:w-50 lg:h-50 rounded-full shadow-[0_0_1rem] shadow-gray-800 object-cover'
                                     />
@@ -501,7 +502,7 @@ function Profile() {
                                                 </form>
                                             ) : (
                                                 <>
-                                                    <p className="text-gray-700 text-xs sm:text-sm leading-relaxed mb-3 line-clamp-3 flex-1 overflow-hidden">
+                                                    <p className="text-gray-700 text-xs leading-relaxed mb-3 line-clamp-3 flex-1 overflow-hidden">
                                                         {rev.review}
                                                     </p>
 
@@ -544,7 +545,7 @@ function Profile() {
                                                 className='object-cover w-full h-full'
                                             />
                                         </div>
-                                        <h3 className='text-md text-[#d91c7d] font-semibold mt-2 text-center line-clamp-2'>{book.title}</h3>
+                                       <Link to={`/book/${book.googleBookId}`}> <h3 className='text-md text-[#d91c7d] font-semibold mt-2 text-center line-clamp-2'>{book.title}</h3></Link>
                                         <p className='text-sm text-gray-600 text-center line-clamp-1'>{book.author}</p>
                                         <button
                                             className='w-full mt-2 px-2 py-1 text-red-600 text-xs rounded hover:underline transition duration-200'

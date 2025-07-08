@@ -6,6 +6,7 @@ import AuthContext from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import loginBanner from '../assets/images/signup-banner.png';
 import Logo from '../assets/images/logo.png';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -22,7 +23,7 @@ export default function Login() {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', {
+      const response = await axios.post(`${VITE_API_BASE_URL}/api/users/login`, {
         email,
         password,
       });

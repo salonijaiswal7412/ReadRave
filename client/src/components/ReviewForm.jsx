@@ -1,6 +1,7 @@
 import React, { useState, useContext,useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 import AuthContext from '../context/AuthContext';
 
@@ -43,7 +44,7 @@ const ReviewForm = ({ bookId, onReviewSubmitted, user }) => {
 
             
 
-            const response = await fetch('http://localhost:5000/api/reviews', {
+            const response = await fetch(`${VITE_API_BASE_URL}/api/reviews`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

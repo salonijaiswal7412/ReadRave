@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 const BookList = () => {
   const [books, setBooks] = useState([]);
   const [query, setQuery] = useState('fiction');
 
   const fetchBooks = (searchTerm) => {
-    fetch(`http://localhost:5000/api/google-books?q=${encodeURIComponent(searchTerm)}`)
+    fetch(`${VITE_API_BASE_URL}/api/google-books?q=${encodeURIComponent(searchTerm)}`)
       .then((res) => res.json())
       .then((data) => setBooks(data))
       .catch((err) => console.error(err));

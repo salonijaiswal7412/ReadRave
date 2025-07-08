@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 const Navbar = () => {
   const [query, setQuery] = useState('');
@@ -36,7 +37,7 @@ const Navbar = () => {
       }
 
       try {
-        const res = await axios.get('http://localhost:5000/api/users/profile', {
+        const res = await axios.get(`${VITE_API_BASE_URL}/api/users/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -60,7 +61,7 @@ const Navbar = () => {
     }
 
     const delayDebounce = setTimeout(() => {
-      fetch(`http://localhost:5000/api/google-books?q=${encodeURIComponent(query)}`)
+      fetch(`${VITE_API_BASE_URL}/api/google-books?q=${encodeURIComponent(query)}`)
         .then(res => res.json())
         .then(data => {
           setSuggestions(data.slice(0, 5)); // Only top 5
@@ -178,7 +179,7 @@ const Navbar = () => {
             >
               {user?.profilePic ? (
                 <img
-                  src={`http://localhost:5000${user.profilePic}`}
+                  src={`${VITE_API_BASE_URL}${user.profilePic}`}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />

@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 import BookCard from '../components/BookCard';
 import CommonFooter from '../components/CommonFooter';
+const VITE_API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 function MyShelf() {
 
@@ -21,7 +22,7 @@ function MyShelf() {
 
         const fetchShelf=async()=>{
             try{
-                const res=await axios.get('http://localhost:5000/api/reading-list',{
+                const res=await axios.get(`${VITE_API_BASE_URL}/api/reading-list`,{
                     headers:{Authorization: `Bearer ${token}`}
                 });
 
@@ -47,7 +48,7 @@ function MyShelf() {
 
     const handleStatusChange= async(googleBookId,newStatus)=>{
         try{
-            const res=await axios.patch(`http://localhost:5000/api/reading-list/${googleBookId}`,{
+            const res=await axios.patch(`${VITE_API_BASE_URL}/api/reading-list/${googleBookId}`,{
                 status:newStatus
             },{
                 headers:{Authorization:`Bearer ${token}`}
@@ -67,7 +68,7 @@ function MyShelf() {
 
     const handleRemove= async(googleBookId)=>{
         try{
-            await axios.delete(`http://localhost:5000/api/reading-list/${googleBookId}`, {
+            await axios.delete(`${VITE_API_BASE_URL}/api/reading-list/${googleBookId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

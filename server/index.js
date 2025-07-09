@@ -22,9 +22,15 @@ connectDB();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors({
-  origin: ['http://localhost:5173', 'https://read-rave.vercel.app/'],
-  credentials:true}));
+
+const corsOptions={
+  origin:['http://localhost:5173', 'https://read-rave.vercel.app'],
+  methods:['GET','POST','PUT',"PATCH",'DELETE'],
+  credentials:true,
+};
+app.use(cors(corsOptions));
+
+
 
 app.use(express.urlencoded({ extended: true }));
 

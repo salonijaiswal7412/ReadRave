@@ -1,4 +1,4 @@
-const ReadingList = require('../models/ReadListModel');
+const ReadingList = require('../models/readListModel');
 const mongoose = require('mongoose');
 
 const readListController = {

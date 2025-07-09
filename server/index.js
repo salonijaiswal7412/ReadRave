@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const mongoose = require('mongoose');
-const userRoutes = require("./routes/userRoutes");
+const userRoutes = require("./routes/UserRoutes");
 const cookieParser=require('cookie-parser');
 const connectDB=require('./config/config');
 const googleBooksRoutes = require('./routes/googleBookRoutes');

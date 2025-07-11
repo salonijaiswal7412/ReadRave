@@ -25,6 +25,8 @@ app.use(cookieParser());
 
 const allowedOrigins = ['http://localhost:5173', 'https://read-rave.vercel.app'];
 
+const allowedOrigins = ['http://localhost:5173', 'https://read-rave.vercel.app'];
+
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -36,7 +38,9 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   credentials: true,
 };
+
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); 
 
 
 

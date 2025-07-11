@@ -24,6 +24,7 @@ const EditProfile = ({ userData, closeModal, onProfileUpdate }) => {
       setLoading(true);
       const res = await axios.patch(`${VITE_API_BASE_URL}/api/users/profile`, formData, {
         headers: {
+          
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
         },

@@ -12,6 +12,7 @@ import MyShelf from './pages/MyShelf';
 import ChatBot from './components/ChatBot';
 import Explore from './pages/Explore';
 import GenrePage from './pages/GenrePage';
+import { Toaster } from 'react-hot-toast';
 
 library.add(fas);
 
@@ -33,6 +34,7 @@ function App(){
        <Route path='/genre/:genreName' element={<GenrePage/>}/>
 
     </Routes>
+    <Toaster/>
 
     </AuthProvider>
     </>

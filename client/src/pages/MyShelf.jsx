@@ -85,12 +85,13 @@ function MyShelf() {
     const renderShelf=(title,status)=>{
         const filtered=books.filter(book=>book.status===status);
         return (
-            <div className="mb-6 w-[90%] shadow-[1px_1px_10px] shadow-gray-400 bg-white p-4 m-auto rounded-lg">
-                <h2 className='text-3xl font-bold mb-4 text-[#d91c7d] '>{title}</h2>
+            <div className="mb-4  md:mb-6 w-[95%] md:w-[90%] shadow-[1px_1px_10px] shadow-gray-400 bg-white p-4 md:p-4 mx-auto rounded-lg">
+                <h2 className='text-xl md:text-2xl lg:text-3xl font-bold mb-3 md:mb-4 text-[#d91c7d]'>{title}</h2>
                 {filtered.length===0?(
-                    <p className='text-gray-600'>No books added to this shelf yet!</p>
+                    <p className='text-gray-600 text-sm md:text-base'>No books added to this shelf yet!</p>
                 ):(
-                    <div className='flex gap-4'>
+                    <div className='flex gap-2 md:gap-3 lg:gap-4 overflow-x-auto pb-2 p-2'>
+                        <div className='flex gap-2 md:gap-3 lg:gap-4 min-w-max'>
                         {filtered.map(item=>(
                              <BookCard
                                 key={item.googleBookId}
@@ -100,6 +101,7 @@ function MyShelf() {
                             />
                             
                         ))}
+                        </div>
                     </div>
 
                 )} 
@@ -110,11 +112,13 @@ function MyShelf() {
   return (
     <div>
         <Navbar/>
-        <div className='py-12 bg-[#f2d8e5] min-h-screen w-full '>
-        <h1 className='text-5xl text-center uppercase font-bold text-[#d91c7d] my-6 tracking-tight '>My Reading Shelf</h1>
-        {renderShelf("Want to Read","wantToRead")}
-        {renderShelf("Currently Reading","currentlyReading")}
-        {renderShelf("Finished Reading","finishedReading")}
+        <div className='py-10 md:py-8 lg:py-12 bg-[#f2d8e5] min-h-screen w-full px-2 md:px-4'>
+            <h1 className='text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-center uppercase font-bold text-[#d91c7d] my-4 md:my-8  tracking-tight px-4'>
+                My Reading Shelf
+            </h1>
+            {renderShelf("Want to Read","wantToRead")}
+            {renderShelf("Currently Reading","currentlyReading")}
+            {renderShelf("Finished Reading","finishedReading")}
         </div>
         <CommonFooter/>
       
